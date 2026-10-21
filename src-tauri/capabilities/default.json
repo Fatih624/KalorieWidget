@@ -1,0 +1,16 @@
+{
+  "identifier": "main-capability",
+  "description": "Nur das lokale Widget-Fenster steuern",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-set-size",
+    "core:window:allow-set-position",
+    "core:window:allow-set-always-on-top",
+    "core:window:allow-close",
+    "core:window:allow-current-monitor",
+    "core:window:allow-available-monitors",
+    "core:window:allow-outer-position"
+  ]
+}

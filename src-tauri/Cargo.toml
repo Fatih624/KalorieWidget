@@ -1,0 +1,32 @@
+[package]
+name = "kalorie-widget"
+version = "0.1.0"
+description = "Dein Kalorien- und Makro-Widget"
+authors = ["Fatih624"]
+edition = "2021"
+
+[lib]
+name = "kalorie_widget_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart"] }
+keyring = { version = "3.6", features = ["windows-native"] }
+chrono = { version = "0.4", features = ["clock"] }
+
+[target.'cfg(windows)'.dependencies]
+window-vibrancy = "0.8"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Graphics_Gdi"] }
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = "s"
