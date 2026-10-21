@@ -1,5 +1,18 @@
 # Prüfung der Windows-Version und privaten Site
 
+## Überarbeitung 0.3 – deckendes Windows-Widget
+
+- 15 TypeScript-Tests und neun Rust-Tests bestanden. Die sechs neuen Geometriefälle prüfen Randposition, negative Monitorursprünge, Taskleiste, kurze und schmale Arbeitsflächen sowie Skalierungen von 100 bis 200 Prozent. TypeScript und Produktionsbuild erfolgreich.
+- Drei unabhängige Agents haben Darstellung, Bedienbarkeit und native Fensterlogik geprüft. Ihre Befunde zu Fokuswechseln, versteckten Bedienelementen, Dialogfreigaben, schmalen Arbeitsflächen, Docking während eines Drags und Strg+K wurden korrigiert und erneut geprüft.
+- Native Release-Ansichten unter Windows geprüft: deckende Farben, scharfe Schrift, FoodGlyph-Favoriten und abgerundete Haupt- und Einstellungsfenster. Kein Acrylic; Alpha bleibt ausschließlich außerhalb der runden Konturen.
+- Getrenntes 128-Pixel-Kreissymbol und 416-Pixel-Panel. Panelbreite und -höhe werden auf die Arbeitsfläche begrenzt; das Symbol dockt nach dem Loslassen der Maus. Keine CSS-Skalierung des WebView-Inhalts.
+- Fokuswechsel außerhalb klappt das native Panel ein. Ein ungespeicherter Eingabetext blieb nach dem Wiederöffnen erhalten und wurde danach entfernt. Das ursprüngliche Kalorienziel von 2200 kcal wurde nach dem Zielwerte-Test wiederhergestellt. Kein Testlebensmittel wurde eingetragen.
+- Hauptfenster bleibt beim Einklappen gemountet und alleiniger Datenautor. Die vorhandene private Geräteverbindung und der Windows-Schlüsselspeicher werden weiterverwendet.
+- Finales Release-Paket 0.3.0 gebaut und die reguläre portable Windows-EXE aus `output/release` gestartet. Strg+K öffnet das Panel aus dem Badge. Native Dateiauswahl geöffnet und ohne Import geschlossen: Einstellungen bleiben geöffnet, kein versehentliches Schließen durch das weitergeleitete Datei-Abbruchereignis.
+- Kompakte Makroanzeige mit Tastaturfokus nativ geprüft; Kalorien bleiben sichtbar und Protein/Kohlenhydrate/Fett erhalten Gramm-Einheiten. Badge gezogen, ohne den geöffneten Panelzustand versehentlich umzuschalten.
+
+Native Bedienprüfung auf dem vorhandenen Arbeitsplatz; weitere physische Monitore und veränderte Windows-DPI-Einstellungen wurden nicht durchgetestet. Die Geometrietests ersetzen diese Hardwareprüfung nicht. Die unten genannten ausstehenden KI-/Handyprüfungen bleiben unverändert.
+
 ## Erweiterung 0.2 – tatsächlich geprüft
 
 - Private Site erfolgreich veröffentlicht: https://kalorie-coach-fatih.fatihgenc.chatgpt.site. Anmeldung als Eigentümer in der veröffentlichten Site bestätigt; unangemeldeter Zugriff fordert die Anmeldung an.

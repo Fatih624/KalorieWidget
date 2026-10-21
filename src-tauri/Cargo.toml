@@ -1,6 +1,6 @@
 [package]
 name = "kalorie-widget"
-version = "0.2.0"
+version = "0.3.0"
 description = "Dein Kalorien- und Makro-Widget"
 authors = ["Fatih624"]
 edition = "2021"
@@ -24,7 +24,7 @@ uuid = { version = "1", features = ["v4"] }
 
 [target.'cfg(windows)'.dependencies]
 window-vibrancy = "0.8"
-windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Graphics_Gdi"] }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_UI_Input_KeyboardAndMouse"] }
 
 [profile.release]
 strip = true

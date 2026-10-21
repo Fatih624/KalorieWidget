@@ -1,7 +1,10 @@
 {
   "identifier": "main-capability",
-  "description": "Nur das lokale Widget-Fenster steuern",
-  "windows": ["main"],
+  "description": "Lokales Kalorie-Panel und schwebendes Makro-Symbol",
+  "windows": [
+    "main",
+    "badge"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",

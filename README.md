@@ -1,20 +1,21 @@
 # Kalorie Widget
 
-Ein lokales Windows-Widget für Kalorien, Makros und schnelle Mahlzeiteneinträge. Die Oberfläche basiert auf Konzept 3: transparente Glasoptik mit einem kleinen, zusammenklappbaren Kalorienkreis.
+Ein lokales Windows-Widget für Kalorien, Makros und schnelle Mahlzeiteneinträge. Version 0.3 verwendet deckende Navy-Flächen, klare Schrift und farbige Makroanzeigen. Ein kleines Kreissymbol bleibt auf dem Desktop; das abgerundete Panel lässt sich aufklappen.
 
 ## Starten
 
 Die für dich bereitgelegten Dateien liegen unter `output/release/Kalorie-Widget.exe` und `output/release/Kalorie-Widget-Setup.exe`. Die ursprünglichen Build-Ergebnisse liegen unter `src-tauri/target/release/`:
 
 - `kalorie-widget.exe`: direkt starten, ohne Installation.
-- `bundle/nsis/Kalorie Widget_0.2.0_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
+- `bundle/nsis/Kalorie Widget_0.3.0_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
 
 Benötigt Windows 10/11 (x64) mit Microsoft Edge WebView2. Der Installer kann die WebView2-Laufzeit bei Bedarf beziehen. Das Paket ist lokal erstellt und nicht mit einem Herausgeberzertifikat signiert.
 
 ## Bedienung
 
-- **Titel ziehen:** Widget verschieben. Position, Vordergrundstatus und eingeklappter Zustand werden gespeichert.
-- **Minus oben:** auf den Kreis zusammenklappen. Der Kreis zeigt immer die heutigen Kalorien und den Fortschritt; beim Hover erscheinen verbleibende bzw. überschrittene Kalorien. Klicken öffnet, Ziehen verschiebt den Kreis.
+- **Kreis ziehen:** Widget verschieben. Das Symbol misst 128 × 128 logische Pixel; seine Position und der Vordergrundstatus werden gespeichert. Nahe am Bildschirmrand rastet es nach dem Loslassen ein. Das Panel öffnet daneben und bleibt innerhalb der Arbeitsfläche einschließlich Taskleiste.
+- **Kreis anklicken:** das 416 Pixel breite Panel öffnen. Minus oder ein Klick außerhalb klappen es wieder ein. Offene Formulare und ihre ungespeicherten Entwürfe bleiben beim Einklappen erhalten. Beim App-Start erscheint zunächst der Kreis.
+- **Makros im Kreis:** drei farbige Ringe zeigen Protein, Kohlenhydrate und Fett. Hover oder Tastaturfokus blendet ihre Grammwerte ein; die heutigen Kalorien bleiben sichtbar. Datei- und Mikrofonfreigaben werden durch Auto-Hide nicht unterbrochen.
 - **Favoriten:** ein Klick übernimmt die gespeicherte Portion. Unter „Alle ansehen“ können eigene Favoriten erstellt, bearbeitet und entfernt werden. Häufig verwendete Favoriten erscheinen zuerst.
 - **Essen hinzufügen:** Favoriten durchsuchen, z. B. `300 g Skyr`, oder ein Lebensmittel selbst anlegen. Jeder Tagebucheintrag lässt sich durch Klicken bearbeiten. Löschen kann sechs Sekunden lang rückgängig gemacht werden.
 - **Lebensmittel:** explizite Suche nach Produktname oder Barcode bei Open Food Facts. Nur Treffer mit vollständigen Kalorien- und Makrowerten werden angeboten. Werte zunächst pro 100 g; die gewünschte Portion danach wählen und prüfen. Es werden keine Daten an Open Food Facts geschrieben.
@@ -61,7 +62,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 npm run tauri build   # Oberfläche, Windows-EXE und Installer
 ```
 
-Alternativ lässt sich die Tauri-CLI unter Windows direkt mit `node node_modules/@tauri-apps/cli/tauri.js build` aufrufen. Die Oberfläche verwendet React und TypeScript; Dateispeicherung, Schlüsselspeicher, API-Anfragen und die echte kreisförmige Fensterregion liegen in Rust. Netzwerkzugriffe erfolgen ausschließlich im nativen Backend über HTTPS an festgelegte Anbieter. Der Fenstereffekt verwendet Windows Acrylic mit transparenter Darstellung als Rückfall. CSS-Bewegungen beachten die Systemeinstellung „Bewegung reduzieren“ und die zusätzliche Widget-Einstellung.
+Alternativ lässt sich die Tauri-CLI unter Windows direkt mit `node node_modules/@tauri-apps/cli/tauri.js build` aufrufen. Die Oberfläche verwendet React und TypeScript; Dateispeicherung, Schlüsselspeicher, API-Anfragen und die nativen Kreis- und Panelregionen liegen in Rust. Hauptfenster und Badge sind getrennte WebViews; ausschließlich das Hauptfenster schreibt und synchronisiert Daten. Netzwerkzugriffe erfolgen im nativen Backend über HTTPS an festgelegte Anbieter. Die Flächen sind deckend, ohne Acrylic oder Hintergrundunschärfe. Fenster-Alpha wird nur außerhalb der runden Konturen verwendet. CSS-Bewegungen beachten die Systemeinstellung „Bewegung reduzieren“ und die zusätzliche Widget-Einstellung.
 
 ## Datenquelle und Dokumentation
 

@@ -83,6 +83,9 @@ export function Modal({
       ref={ref}
       className="modal"
       onCancel={(e) => {
+        // File inputs bubble their own cancel event when the OS picker closes.
+        // Only Escape on this dialog itself should close the editor.
+        if(e.target!==e.currentTarget)return;
         e.preventDefault();
         onClose();
       }}
@@ -599,21 +602,9 @@ export function SettingsPanel({
         {tab === "widget" && (
           <>
             <div className="notice">
-              <SlidersHorizontal size={18} /> Ziehe das Widget am Titel. Den
-              kleinen Kreis kannst du ziehen und durch Klicken wieder öffnen.
+              <SlidersHorizontal size={18} /> Ziehe das kleine Symbol zum Verschieben. Ein Klick öffnet
+              das Panel; ein Klick außerhalb klappt es wieder ein.
             </div>
-            <label>
-              Glasdeckkraft · {settings.opacity} %
-              <input
-                type="range"
-                min="30"
-                max="95"
-                value={settings.opacity}
-                onChange={(e) =>
-                  setSettings({ ...settings, opacity: Number(e.target.value) })
-                }
-              />
-            </label>
             <Toggle
               title="Immer im Vordergrund"
               detail="Über anderen Fenstern sichtbar bleiben"

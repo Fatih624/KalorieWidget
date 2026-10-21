@@ -1,9 +1,7 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import {
   getCurrentWindow,
-  currentMonitor,
   availableMonitors,
-  LogicalSize,
   PhysicalPosition,
 } from "@tauri-apps/api/window";
 import { defaults, parseData } from "./domain";
@@ -79,39 +77,18 @@ export async function dragWindow() {
   if (native) await getCurrentWindow().startDragging();
 }
 export async function closeWindow() {
-  if (native) await getCurrentWindow().close();
+  if (native) { await saveQueue; await invoke("widget_quit"); }
 }
 export async function pinWindow(on: boolean) {
-  if (native) await getCurrentWindow().setAlwaysOnTop(on);
+  if (native) await invoke("widget_pin", {on});
 }
 export async function resizeWindow(collapsed: boolean) {
-  if (!native) return;
-  const win = getCurrentWindow();
-  const monitor = await currentMonitor();
-  const scale = monitor?.scaleFactor || 1;
-  const height = collapsed
-    ? 168
-    : Math.min(820, monitor ? monitor.workArea.size.height / scale - 28 : 820);
-  const width = collapsed ? 168 : 460;
-  await win.setSize(new LogicalSize(width, height));
-  await invoke("shape_window", { collapsed });
-  const pos = await win.outerPosition();
-  if (monitor) {
-    const area = monitor.workArea;
-    const x = Math.min(
-      Math.max(pos.x, area.position.x),
-      area.position.x + area.size.width - width * scale,
-    );
-    const y = Math.min(
-      Math.max(pos.y, area.position.y),
-      area.position.y + area.size.height - height * scale,
-    );
-    await win.setPosition(new PhysicalPosition(Math.round(x), Math.round(y)));
-  }
+  if (native) await invoke("set_panel_visible", {visible: !collapsed});
 }
 export async function restoreWindow() {
   if (!native) return () => {};
   const win = getCurrentWindow();
+  if (win.label !== "badge") return () => {};
   try {
     const raw = localStorage.getItem("kalorie-window-position");
     if (raw) {
@@ -124,8 +101,8 @@ export async function restoreWindow() {
           (m) =>
             x >= m.workArea.position.x &&
             y >= m.workArea.position.y &&
-            x + 168 <= m.workArea.position.x + m.workArea.size.width &&
-            y + 168 <= m.workArea.position.y + m.workArea.size.height,
+            x + 128 * m.scaleFactor <= m.workArea.position.x + m.workArea.size.width &&
+            y + 128 * m.scaleFactor <= m.workArea.position.y + m.workArea.size.height,
         )
       )
         await win.setPosition(new PhysicalPosition(x, y));
@@ -133,7 +110,14 @@ export async function restoreWindow() {
   } catch {
     /* A disconnected monitor or old position is harmless. */
   }
-  return win.onMoved(({ payload }) => {
+  await invoke("widget_dock");
+  let timer:ReturnType<typeof setTimeout>|undefined;
+  let disposed=false;
+  const dock=()=>{void invoke<boolean>("widget_dock").then(done=>{if(!done&&!disposed)timer=setTimeout(dock,80);}).catch(()=>{});};
+  const unlisten=await win.onMoved(({ payload }) => {
     localStorage.setItem("kalorie-window-position", JSON.stringify(payload));
+    clearTimeout(timer);
+    timer=setTimeout(dock,180);
   });
+  return ()=>{disposed=true;clearTimeout(timer);unlisten();};
 }

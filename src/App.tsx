@@ -13,7 +13,7 @@ import {
   Square,
   ChevronLeft,
   ChevronRight,
-  ArrowUpRight,
+  ChevronDown,
   Star,
   ChartNoAxesColumnIncreasing,
   Utensils,
@@ -28,6 +28,9 @@ import {
   LoaderCircle,
   Cloud,
 } from "lucide-react";
+import { FoodGlyph } from "./FoodGlyph";
+import { MacroBadge } from "./Badge";
+import { useWidgetWindows } from "./widgetWindows";
 import { useCloud, CloudPanel, CloudConflict } from "./cloud";
 import {
   loadData,
@@ -36,7 +39,6 @@ import {
   resizeWindow,
   restoreWindow,
   pinWindow,
-  dragWindow,
   closeWindow,
   hasKey,
   transcribe,
@@ -89,6 +91,10 @@ export default function App() {
   const [currentDay, setCurrentDay] = useState(today());
   const [transitioning, setTransitioning] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [permissionPending,setPermissionPending]=useState(false);
+  const [fileDialogPending,setFileDialogPending]=useState(false);
+  const [moreBelow,setMoreBelow]=useState(false);
+  const scrollRef=useRef<HTMLDivElement>(null);
   const [transcribing, setTranscribing] = useState(false);
   const recorder = useRef<MediaRecorder | null>(null);
   const micStream = useRef<MediaStream | null>(null);
@@ -96,12 +102,11 @@ export default function App() {
     undefined,
   );
   const inputRef = useRef<HTMLInputElement>(null);
-  const moveStart = useRef<{ x: number; y: number } | null>(null);
-  const moved = useRef(false);
+  useWidgetWindows(data, setData, currentDay, recording || transcribing || permissionPending || fileDialogPending, setSaveError,()=>{setTimeout(()=>{const dialog=document.querySelector('dialog[open]');(dialog?.querySelector<HTMLElement>('input,select,textarea,button')??inputRef.current)?.focus();},80);});
   const load = () => {
     setLoadError("");
     loadData()
-      .then(setData)
+      .then(d => setData(native ? {...d, settings:{...d.settings, collapsed:true}} : d))
       .catch((e) => setLoadError(String(e)));
   };
   useEffect(() => {
@@ -159,7 +164,7 @@ export default function App() {
         resizeWindow(collapsed).catch((e) =>
           setSaveError(`Fenstergröße: ${String(e)}`),
         ),
-      collapsed ? 360 : 0,
+      0,
     );
     return () => clearTimeout(timer);
   }, [collapsed, !!data]);
@@ -189,28 +194,32 @@ export default function App() {
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
   });
+  useEffect(() => {
+    if (native) return;
+    const outside = (e:PointerEvent) => { if (!(e.target as Element).closest(".app-shell") && !recording && !transcribing) setData(d => d ? {...d,settings:{...d.settings,collapsed:true}} : d); };
+    document.addEventListener("pointerdown",outside);
+    return () => document.removeEventListener("pointerdown",outside);
+  }, [recording,transcribing]);
+  useEffect(() => {
+    const picking=(event:MouseEvent)=>{if(event.target instanceof HTMLInputElement && event.target.type==='file')setFileDialogPending(true);};
+    const complete=()=>setFileDialogPending(false);
+    document.addEventListener('click',picking,true);document.addEventListener('change',complete,true);document.addEventListener('cancel',complete,true);window.addEventListener('focus',complete);
+    return()=>{document.removeEventListener('click',picking,true);document.removeEventListener('change',complete,true);document.removeEventListener('cancel',complete,true);window.removeEventListener('focus',complete);};
+  },[]);
+  useEffect(() => {
+    const el=scrollRef.current;if(!el)return;
+    const measure=()=>setMoreBelow(el.scrollHeight-el.scrollTop-el.clientHeight>28);
+    const observer=new ResizeObserver(measure);observer.observe(el);el.addEventListener('scroll',measure);measure();
+    return()=>{observer.disconnect();el.removeEventListener('scroll',measure);};
+  },[data,collapsed]);
   function notify(message: string, undo?: () => void) {
     setToast({ id: Date.now(), message, undo });
   }
   async function toggleCollapsed() {
     if (!data || transitioning || recording || transcribing) return;
     setTransitioning(true);
-    setPanel(null);
-    setToast(null);
-    try {
-      if (data.settings.collapsed) await resizeWindow(false);
-      setData((d) =>
-        d
-          ? {
-              ...d,
-              settings: { ...d.settings, collapsed: !d.settings.collapsed },
-            }
-          : d,
-      );
-    } catch (e) {
-      setSaveError(String(e));
-    }
-    setTimeout(() => setTransitioning(false), 450);
+    setData(d => d ? {...d, settings:{...d.settings, collapsed:!d.settings.collapsed}} : d);
+    setTimeout(() => setTransitioning(false), 200);
   }
   function add(food: Food) {
     setData((d) =>
@@ -271,6 +280,7 @@ export default function App() {
     );
   }
   async function startVoice() {
+    if(permissionPending || transcribing)return;
     if (recording) {
       recorder.current?.stop();
       return;
@@ -284,6 +294,7 @@ export default function App() {
       notify("Spracheingabe steht in der Windows-App bereit.");
       return;
     }
+    setPermissionPending(true);
     try {
       if (!(await hasKey("openai")))
         throw new Error(
@@ -344,11 +355,11 @@ export default function App() {
     } catch (e) {
       micStream.current?.getTracks().forEach((t) => t.stop());
       notify(String(e));
-    }
+    } finally {setPermissionPending(false);}
   }
   if (!data)
     return (
-      <div className="boot glass">
+      <div className="boot surface">
         <Flame size={28} />
         <h1>Kalorie Widget</h1>
         {loadError ? (
@@ -393,9 +404,6 @@ export default function App() {
           month: "short",
         });
   const reduced = data.settings.reducedMotion;
-  const styles = {
-    "--glass-alpha": data.settings.opacity / 100,
-  } as CSSProperties;
   const changeDay = (offset: number) => {
     const next = new Date(date + "T12:00:00");
     next.setDate(next.getDate() + offset);
@@ -407,64 +415,20 @@ export default function App() {
   }
   return (
     <div
-      className={`app-shell ${collapsed ? "is-collapsed" : ""} ${reduced ? "reduce-motion" : ""}`}
-      style={styles}
+      className={`app-shell ${!native && collapsed ? "is-collapsed" : ""} ${reduced ? "reduce-motion" : ""}`}
     >
       {!native && (
         <div className="preview-note">
           <span className="preview-dot" /> DESKTOP-VORSCHAU
         </div>
       )}
-      <main className={`widget glass ${collapsed ? "collapsed" : ""}`}>
-        <button
-          className="mini-widget"
-          aria-hidden={!collapsed}
-          disabled={!collapsed || transitioning}
-          tabIndex={collapsed ? 0 : -1}
-          aria-label={`Widget öffnen. Heute ${number(miniTotal.kcal)} Kilokalorien.`}
-          title="Klicken zum Öffnen · Ziehen zum Verschieben"
-          onPointerDown={(e) => {
-            moveStart.current = { x: e.clientX, y: e.clientY };
-            moved.current = false;
-            e.currentTarget.setPointerCapture(e.pointerId);
-          }}
-          onPointerMove={(e) => {
-            const start = moveStart.current;
-            if (
-              start &&
-              Math.abs(e.clientX - start.x) + Math.abs(e.clientY - start.y) > 6
-            ) {
-              moveStart.current = null;
-              moved.current = true;
-              void dragWindow().catch((err) => notify(String(err)));
-            }
-          }}
-          onPointerUp={() => {
-            moveStart.current = null;
-          }}
-          onClick={() => {
-            if (!moved.current) void toggleCollapsed();
-            moved.current = false;
-          }}
-        >
-          <Ring value={miniTotal.kcal} goal={goals.kcal} compact />
-          <span className="mini-hover">
-            <strong>{number(Math.abs(goals.kcal - miniTotal.kcal))}</strong>
-            <small>
-              {miniTotal.kcal <= goals.kcal ? "kcal übrig" : "kcal über Ziel"}
-            </small>
-            <ArrowUpRight size={15} />
-          </span>
-        </button>
-        <div className="expanded-content" inert={collapsed}>
+      {!native && <div className="preview-badge"><MacroBadge value={{total:miniTotal,goals,open:!collapsed,reducedMotion:reduced}} onToggle={() => void toggleCollapsed()} /></div>}
+      <main className="widget surface">
+        <div className="expanded-content" inert={!native && collapsed}>
           <header className="widget-header">
             <div
               className="brand"
-              onPointerDown={(e) => {
-                if (e.button === 0)
-                  void dragWindow().catch((err) => notify(String(err)));
-              }}
-              title="Widget verschieben"
+              title="Zum Verschieben das kleine Symbol ziehen"
             >
               <div className="brand-mark">
                 <Flame size={21} fill="currentColor" strokeWidth={1.5} />
@@ -519,7 +483,7 @@ export default function App() {
               )}
             </div>
           </header>
-          <div className="widget-scroll">
+          <div className="widget-scroll" ref={scrollRef}>
             <div className="day-navigation">
               <div className="eyebrow">DEIN TAG. DEIN TEMPO.</div>
               <div className="date-controls">
@@ -651,7 +615,7 @@ export default function App() {
                     title={`${f.name}: ${number(f.grams)} g direkt hinzufügen`}
                     onClick={() => add(f)}
                   >
-                    <span className="food-emoji">{f.emoji}</span>
+                    <FoodGlyph food={f} />
                     <strong>{f.name}</strong>
                     <small>
                       {number(f.grams)} g · {number(f.macros.kcal)} kcal
@@ -699,7 +663,7 @@ export default function App() {
                 <div className="diary-list">
                   {entries.map((e) => (
                     <div className="diary-entry" key={e.entryId}>
-                      <span className="food-emoji">{e.emoji}</span>
+                      <FoodGlyph food={e} />
                       <button
                         className="entry-main"
                         onClick={() =>
@@ -775,6 +739,7 @@ export default function App() {
               <ChevronRight size={15} />
             </button>
           </div>
+          {moreBelow && <button className="scroll-cue" onClick={()=>scrollRef.current?.scrollBy({top:240,behavior:reduced?"auto":"smooth"})}>Weiter nach unten <ChevronDown size={14}/></button>}
           <footer className="widget-footer">
             <form
               className={`quick-input ${recording ? "recording" : ""}`}

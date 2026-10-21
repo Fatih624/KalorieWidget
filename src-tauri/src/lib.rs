@@ -1,3 +1,4 @@
+mod widget_window;
 mod cloud;
 use chrono::Local;
 use serde::{Deserialize, Serialize};
@@ -9,7 +10,7 @@ use std::{
     sync::Mutex,
     time::{Duration, Instant},
 };
-use tauri::{Manager, State};
+use tauri::{Emitter, Manager, State};
 
 type Result<T> = std::result::Result<T, String>;
 struct Services {
@@ -369,44 +370,6 @@ async fn transcribe_audio(
         .ok_or("Es wurde keine Sprache erkannt.")?;
     Ok(text.chars().take(1600).collect())
 }
-#[tauri::command]
-fn shape_window(window: tauri::WebviewWindow, collapsed: bool) -> Result<()> {
-    #[cfg(windows)]
-    {
-        use windows_sys::Win32::Graphics::Gdi::{
-            CreateEllipticRgn, CreateRoundRectRgn, DeleteObject, SetWindowRgn,
-        };
-        let scale = window
-            .scale_factor()
-            .map_err(|_| "Die Fensterskalierung ist nicht verfügbar.")?;
-        let size = window
-            .inner_size()
-            .map_err(|_| "Die Fenstergröße ist nicht verfügbar.")?;
-        let inset = (14.0 * scale).round() as i32;
-        let right = size.width as i32 - inset;
-        let bottom = size.height as i32 - inset;
-        let radius = (52.0 * scale).round() as i32;
-        let hwnd = window
-            .hwnd()
-            .map_err(|_| "Das Windows-Fenster ist nicht verfügbar.")?;
-        // On success Windows owns the region; on failure we must release it ourselves.
-        unsafe {
-            let region = if collapsed {
-                CreateEllipticRgn(inset, inset, right, bottom)
-            } else {
-                CreateRoundRectRgn(inset, inset, right + 1, bottom + 1, radius, radius)
-            };
-            if region.is_null() {
-                return Err("Die Fensterform konnte nicht erstellt werden.".into());
-            }
-            if SetWindowRgn(hwnd.0, region, 1) == 0 {
-                DeleteObject(region);
-                return Err("Die Fensterform konnte nicht gesetzt werden.".into());
-            }
-        }
-    }
-    Ok(())
-}
 pub fn run() {
     if std::env::args().any(|arg| arg == "--configure-cloud") {
         if cloud::configure_from_stdin().is_err() { std::process::exit(1); }
@@ -414,24 +377,20 @@ pub fn run() {
     }
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.show();
-                let _ = window.set_focus();
+            if app.get_webview_window("main").is_some() {
+                let _ = widget_window::set_panel_visible(app.clone(), true);
+                let _ = app.emit_to("main", "widget-panel-opened", ());
             }
         }))
         .setup(|app| {
-            #[cfg(windows)]
-            if let Some(window) = app.get_webview_window("main") {
-                // Older systems may not support acrylic. The translucent CSS surface is the fallback.
-                let _ = window_vibrancy::apply_acrylic(&window, Some((18, 33, 62, 28)));
-            }
+            widget_window::setup(app.handle());
             Ok(())
         })
         .manage(Services {
             client: reqwest::Client::builder()
                 .timeout(Duration::from_secs(35))
                 .redirect(reqwest::redirect::Policy::none())
-                .user_agent("KalorieWidget/0.2.0 (https://github.com/Fatih624/KalorieWidget)")
+                .user_agent("KalorieWidget/0.3.0 (https://github.com/Fatih624/KalorieWidget)")
                 .build()
                 .expect("HTTP client"),
             io: Mutex::new(()),
@@ -449,7 +408,15 @@ pub fn run() {
             search_food,
             estimate_food,
             transcribe_audio,
-            shape_window,
+            widget_window::set_panel_visible,
+            widget_window::widget_toggle,
+            widget_window::widget_quick_input,
+            widget_window::widget_badge_ready,
+            widget_window::widget_dock,
+            widget_window::widget_has_focus,
+            widget_window::widget_pin,
+            widget_window::widget_quit,
+            widget_window::widget_request_quit,
             cloud::cloud_status,
             cloud::cloud_connect,
             cloud::cloud_disconnect,
