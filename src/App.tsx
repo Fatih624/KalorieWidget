@@ -26,7 +26,9 @@ import {
   Check,
   Undo2,
   LoaderCircle,
+  Cloud,
 } from "lucide-react";
+import { useCloud, CloudPanel, CloudConflict } from "./cloud";
 import {
   loadData,
   saveData,
@@ -61,6 +63,7 @@ import {
 type Panel =
   | { type: "search"; query: string; tab?: "local" | "ai" }
   | { type: "settings" }
+  | { type: "cloud" }
   | {
       type: "food";
       food?: Food;
@@ -75,6 +78,7 @@ type Toast = { id: number; message: string; undo?: () => void };
 
 export default function App() {
   const [data, setData] = useState<AppData | null>(null);
+  const cloud = useCloud(data, setData);
   const [loadError, setLoadError] = useState("");
   const [saveError, setSaveError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -471,6 +475,9 @@ export default function App() {
               <Grip size={13} className="drag-hint" />
             </div>
             <div className="window-controls">
+              <IconButton label="Handy & Cloud" onClick={() => setPanel({ type: "cloud" })} active={cloud.connection?.connected}>
+                <Cloud size={15} />
+              </IconButton>
               <IconButton
                 label={
                   alwaysOnTop ? "Vordergrund lösen" : "Immer im Vordergrund"
@@ -869,6 +876,8 @@ export default function App() {
           </div>
         )}
       </main>
+      {panel?.type === "cloud" && <CloudPanel cloud={cloud} onClose={() => setPanel(null)} />}
+      <CloudConflict cloud={cloud} />
       {panel?.type === "search" && (
         <FoodSearch
           initialQuery={panel.query}

@@ -1927,7 +1927,7 @@ dependencies = [
 
 [[package]]
 name = "kalorie-widget"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "keyring",
@@ -1937,6 +1937,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-single-instance",
+ "uuid",
  "window-vibrancy",
  "windows-sys 0.61.2",
 ]

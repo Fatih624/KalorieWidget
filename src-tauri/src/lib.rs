@@ -1,3 +1,4 @@
+mod cloud;
 use chrono::Local;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -407,6 +408,10 @@ fn shape_window(window: tauri::WebviewWindow, collapsed: bool) -> Result<()> {
     Ok(())
 }
 pub fn run() {
+    if std::env::args().any(|arg| arg == "--configure-cloud") {
+        if cloud::configure_from_stdin().is_err() { std::process::exit(1); }
+        return;
+    }
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
@@ -426,7 +431,7 @@ pub fn run() {
             client: reqwest::Client::builder()
                 .timeout(Duration::from_secs(35))
                 .redirect(reqwest::redirect::Policy::none())
-                .user_agent("KalorieWidget/0.1.0 (https://github.com/Fatih624/KalorieWidget)")
+                .user_agent("KalorieWidget/0.2.0 (https://github.com/Fatih624/KalorieWidget)")
                 .build()
                 .expect("HTTP client"),
             io: Mutex::new(()),
@@ -444,7 +449,15 @@ pub fn run() {
             search_food,
             estimate_food,
             transcribe_audio,
-            shape_window
+            shape_window,
+            cloud::cloud_status,
+            cloud::cloud_connect,
+            cloud::cloud_disconnect,
+            cloud::cloud_pull,
+            cloud::cloud_push,
+            cloud::cloud_base,
+            cloud::cloud_remember,
+            cloud::cloud_open
         ])
         .run(tauri::generate_context!())
         .expect("Kalorie Widget konnte nicht gestartet werden");

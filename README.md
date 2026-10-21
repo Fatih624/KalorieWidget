@@ -7,7 +7,7 @@ Ein lokales Windows-Widget für Kalorien, Makros und schnelle Mahlzeiteneinträg
 Die für dich bereitgelegten Dateien liegen unter `output/release/Kalorie-Widget.exe` und `output/release/Kalorie-Widget-Setup.exe`. Die ursprünglichen Build-Ergebnisse liegen unter `src-tauri/target/release/`:
 
 - `kalorie-widget.exe`: direkt starten, ohne Installation.
-- `bundle/nsis/Kalorie Widget_0.1.0_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
+- `bundle/nsis/Kalorie Widget_0.2.0_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
 
 Benötigt Windows 10/11 (x64) mit Microsoft Edge WebView2. Der Installer kann die WebView2-Laufzeit bei Bedarf beziehen. Das Paket ist lokal erstellt und nicht mit einem Herausgeberzertifikat signiert.
 
@@ -71,3 +71,7 @@ Alternativ lässt sich die Tauri-CLI unter Windows direkt mit `node node_modules
 - [Groq: API-Referenz](https://console.groq.com/docs/api-reference), [OpenRouter: API-Dokumentation](https://openrouter.ai/docs/api-reference/overview).
 
 Open Food Facts wird nur auf ausdrückliche Suche aufgerufen, für die Sitzung zwischengespeichert und auf eine neue Online-Suche pro sieben Sekunden begrenzt. Favoriten, manuelle Einträge und bereits gespeicherte Mahlzeiten funktionieren offline.
+
+## Handy und private Cloud (Version 0.2)
+
+Die private Site ist unter https://kalorie-coach-fatih.fatihgenc.chatgpt.site veröffentlicht; die Quellen liegen in `sites/kalorie-coach`. [Einrichtung und Verhalten](docs/CLOUD.md), [Diagnose der Schlüsselbestätigung](docs/KEY-SETUP-DIAGNOSIS.md). Favoriten, Tagebuch und Tagesziele lassen sich mit dem Windows-Widget abgleichen; OpenAI ist dafür nicht erforderlich. Die KI-Fotoanalyse wartet noch auf die sichere Schlüsseleinrichtung.

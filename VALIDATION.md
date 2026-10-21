@@ -1,4 +1,19 @@
-# Prüfung der ersten Windows-Version
+# Prüfung der Windows-Version und privaten Site
+
+## Erweiterung 0.2 – tatsächlich geprüft
+
+- Private Site erfolgreich veröffentlicht: https://kalorie-coach-fatih.fatihgenc.chatgpt.site. Anmeldung als Eigentümer in der veröffentlichten Site bestätigt; unangemeldeter Zugriff fordert die Anmeldung an.
+- Windows-Release 0.2.0 und deutschsprachiges NSIS-Paket erfolgreich gebaut. Die fertig gepackte EXE wurde gestartet und über WebView2 geprüft, ohne Konsolenfehler.
+- 15 TypeScript-Tests bestanden (acht bestehende Datenprüfungen und sieben Fälle zur Zusammenführung). Drei Rust-Tests bestanden. TypeScript und Produktionsbuild von Widget und Site erfolgreich.
+- Lokale Schnittstellenprüfung bestanden: fehlende oder gefälschte Identität abgewiesen, fremde Browser-Herkunft abgewiesen, parallele Schreibvorgänge ergeben genau einen Erfolg und einen Versionskonflikt, ungültige Nährwerte abgewiesen, Kopplung nur einmal möglich, Geräte dürfen keine anderen Geräte verwalten, unbekannte und widerrufene Geräteschlüssel abgewiesen.
+- Die veröffentlichte Site mit dem echten Windows-Widget gekoppelt. Privater Hosting-Zugang und Gerätezugang liegen ausschließlich in der Windows-Anmeldeinformationsverwaltung. Das Tagebuch und die Abgleichsbasis enthalten keine Schlüssel.
+- Ein Testeintrag aus dem Windows-Widget erschien in der veröffentlichten Site. Nach dem Entfernen dieses eigenen Testeintrags auf der Site verschwand er auch im Widget. Beide Ansichten zeigten danach wieder null Einträge und den erfolgreichen Abgleich. Die Geräteverbindung bleibt zur Nutzung eingerichtet.
+- Mobile Ansicht bei 390 Pixeln Breite visuell geprüft. Kamera-/Galerie-Auswahl und Foto-Vorschau mit einem lokalen Konzeptbild geprüft; das Bild wurde auf höchstens 1024 Pixel und unter die Upload-Grenze verkleinert. Kein Bild wurde an OpenAI übertragen.
+- Manifest und App-Symbole mit 192/512 Pixeln vorhanden. Service Worker speichert keine privaten Seiten oder Antworten; vollständiger Offline-Neustart zeigt eine neutrale Hinweisseite.
+
+Noch offen: KI-Auswertung mit einem echten Schlüssel, Aufnahme mit einer echten Handy-Kamera und Installation auf einem physischen iPhone/Android-Gerät. Das Codex-Formular zur Schlüsselbestätigung antwortet automatisch mit Ablehnung; die Diagnose steht in `docs/KEY-SETUP-DIAGNOSIS.md`. Es gab keine kostenpflichtigen API-Aufrufe.
+
+Die folgende Prüfung dokumentiert zusätzlich die zuvor erstellte Version 0.1.
 
 Stand: 21.10.2026. Geprüft in diesem Windows-Arbeitsplatz, mit der Browser-Vorschau und einer tatsächlich gestarteten Tauri-/WebView2-App.
 
