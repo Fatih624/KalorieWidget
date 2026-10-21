@@ -1,6 +1,8 @@
 # Diagnose der fehlenden Speicherort-Bestätigung
 
-Stand: 21.10.2026. Es wurde kein API-Schlüssel erstellt oder gespeichert und keine Bestätigung simuliert.
+Historische Diagnose vom 21.10.2026 zur Schluesselerstellung ueber das Plugin. Es wurde dabei kein neuer API-Schluessel erstellt und keine Bestaetigung simuliert.
+
+Aktueller Stand: Der Benutzer hat seinen vorhandenen OpenAI-Schluessel inzwischen selbst im geschuetzten Feld der Handy-App gespeichert. Die verschluesselte serverseitige Speicherung und eine echte Fotoanalyse aus einer neuen Sitzung wurden erfolgreich geprueft. Der lokale Plugin-Bestaetigungsdialog wird fuer diesen Weg nicht benoetigt.
 
 ## Festgestellte Befunde
 

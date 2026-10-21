@@ -1,5 +1,16 @@
 # Prüfung der Windows-Version und privaten Site
 
+## Handy-App: Ueberarbeitung und Passwortzugang
+
+- Produktionsversion unter der bestehenden Adresse veroeffentlicht. Die Adresse ist ohne GPT-Anmeldung erreichbar; ein anonymer Zugriff auf Tagebuch und Status liefert HTTP 401. Eigene Passwort-Anmeldung in Chrome getestet, einschliesslich Neuladen mit bestehender Sitzung.
+- Neue deckende Oberflaeche, kompakte Tagesuebersicht und feste Navigation bei 360 × 760 Pixeln geprueft; Hauptaktion vollstaendig oberhalb der Navigation. Zusaetzlich 320 × 640 und 390 × 844 geprueft. Dialoge ohne horizontales Ueberlaufen; Eingaben mit 16-Pixel-Schrift. Keine physische Galaxy-S10-Installation in dieser Umgebung.
+- Neue versionierte App-Symbole mit Android-Maskenvariante, separatem Apple-Symbol und PNG-Favicon veroeffentlicht.
+- TypeScript-Pruefung und Produktionsbuild bestanden. Lokaler Authentifizierungstest prueft fehlende Anmeldung, falsches Passwort, fremde Herkunft, Secure/HttpOnly-Cookie, Schluessel-Nichtoffenlegung, verschluesselte Speicherung ueber mehrere Sitzungen, Geraetekopplung, einmalige Codes, Widerruf und Abmeldung. Ein eindeutig unechter lokaler Testschluessel wurde wieder entfernt; keine Anbieteranfragen damit.
+- Der Benutzer hat seinen vorhandenen OpenAI-Schluessel einmalig in der veroeffentlichten App gespeichert. Danach aus einer neuen App-Sitzung eine echte Fotoanalyse ueber den Server ausgefuehrt: neutrales generiertes Bananen-Testfoto, gpt-4.1-mini, eine neue Analyse. Ergebnis als Schaetzung: Banane, 150 g, 135 kcal. Dies ist ein Funktionstest, keine Validierung fotografischer Naehrwertgenauigkeit.
+- Den Foto-Testeintrag mit eindeutigem Namen und Eintragsschluessel gespeichert. Empfang im laufenden Windows-Widget anhand desselben Schluessels und in der nativen Oberflaeche bestaetigt: Kalorienkreis 135 kcal, Makros und „Foto-Verbindungstest · Banane“ sichtbar. Anschliessend ausschliesslich diesen Testeintrag mit Versionspruefung entfernt; Entfernung auch im Windows-Tagebuch bestaetigt. Andere Eintraege, Favoriten und Ziele bleiben erhalten.
+- Der integrierte Vorschau-Browser uebernahm die eigene Sitzung nicht; die Live-Anmeldung und Darstellung wurden deshalb zusaetzlich im normalen Chrome geprueft. Auf dem Handy direkt in Chrome oeffnen.
+
+
 ## Überarbeitung 0.3 – deckendes Windows-Widget
 
 - 15 TypeScript-Tests und neun Rust-Tests bestanden. Die sechs neuen Geometriefälle prüfen Randposition, negative Monitorursprünge, Taskleiste, kurze und schmale Arbeitsflächen sowie Skalierungen von 100 bis 200 Prozent. TypeScript und Produktionsbuild erfolgreich.
