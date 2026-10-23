@@ -24,7 +24,7 @@ const record = (value: unknown): value is Record<string, unknown> =>
 function fromUsda(payload: unknown): Food[] {
   if (!record(payload) || !Array.isArray(payload.foods)) return [];
   return payload.foods.slice(0, 20).flatMap((item): Food[] => {
-    if (!record(item) || !Number.isSafeInteger(item.fdcId) ||
+    if (!record(item) || (typeof item.fdcId !== 'number' || !Number.isSafeInteger(item.fdcId)) ||
         typeof item.description !== 'string' || !item.description.trim() ||
         !Array.isArray(item.foodNutrients)) return [];
     const values = new Map<number, number>();
@@ -114,7 +114,7 @@ export function createResilientSearch(options: SearchOptions = {}) {
     const result: ResilientSearchResult = {
       foods: local,
       source: local.length ? 'local' : 'none',
-      degraded: primaryFailed || !!apiKey,
+      degraded: local.length > 0 || primaryFailed,
       notice: local.length
         ? 'Lokaler Richtwert statt Live-Produktdaten. Marke, Portion und Nährwerte bitte prüfen.'
         : primaryFailed
