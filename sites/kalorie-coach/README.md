@@ -151,3 +151,19 @@ Die Erkennungsregeln in lib/local-food-search.ts werden auch vom Windows-Widget 
 „Meine Mahlzeiten“ zeigt gespeicherte Kombinationen mit Gesamtkalorien. Ein Klick übernimmt alle Bestandteile als getrennte Einträge für den ausgewählten Tag. Über „Alle ansehen“ lassen sich Vorlagen suchen, bearbeiten und löschen; eine neue Vorlage kann dort oder direkt aus der lokalen Mahlzeitenprüfung gespeichert werden. „Nur als Vorlage speichern“ erzeugt keinen Tagebucheintrag. Die Mengen und Nährwerte sind unabhängige Kopien der Lebensmittel.
 
 Das optionale Snapshot-Feld `mealTemplates` wird zusammen mit Favoriten, Zielen und Einträgen synchronisiert und lokal sowie im JSON-Export gesichert. Der Drei-Wege-Abgleich führt unabhängige Änderungen zusammen und fragt bei gleichzeitigen Änderungen derselben Vorlage nach. Fehlende Felder älterer Clients werden serverseitig erhalten; eine ausdrücklich leere Liste löscht die Vorlagen. Die bestehende Versionsprüfung schützt auch diesen Übergang vor konkurrierenden Schreibvorgängen. Maximal 500 Vorlagen mit 1–20 Lebensmitteln. Keine KI-API für Erstellung, Auswahl oder Synchronisierung.
+
+
+## Ausfallsichere Produktsuche (Oktober 2026)
+
+Produktabfragen über `/api/coach/search?q=...` verwenden nacheinander:
+
+1. Open Food Facts (Live-Barcodes oder Text über `/cgi/search.pl`), mit 6-s-Timeout sowie begrenztem Cache/Cooldown.
+2. Optional USDA FoodData Central (unabhängiger Server, nur Textsuche, 5-s-Timeout), wenn die Cloudflare-Umgebungsvariable `USDA_API_KEY` gesetzt ist. Ein eigener Schlüssel ist erforderlich. **Keinen Schlüssel in Git oder im Browser speichern.** Registrierung: https://fdc.nal.usda.gov/api-guide/ .
+3. Offline-Presets aus `FOOD_PRESETS`, einschließlich BLS-Brötchenwerten und vorhandenen Lidl-Barcodes. Unbekannte Barcodes werden niemals durch ähnliche Produkte ersetzt.
+4. Falls die ganze App-API nicht erreichbar ist: Client-Fallback im Erfassen-Dialog, bestehend aus Favoriten, Verlauf und diesen Presets.
+
+Response: `{ foods, source, degraded, notice? }` (kompatibel mit bisherigen Clients, die nur `foods` lesen). Eine Ersatzquelle wird sichtbar benannt, Mengen und Makros bleiben manuell prüfbar. Ein leeres Suchergebnis ist **kein** Lebensmittelvorschlag. Die Nutzung der Produktsuche verändert das Ernährungstagebuch nicht automatisch.
+
+Open Food Facts beschränkt Suchabfragen auf 10/min/IP und Produktabfragen auf 15/min/IP; mit Cloudflare teilen Nutzer ggf. eine ausgehende IP. Deshalb sind Caching, Cooldown, lokale Ersatzdaten und das bestehende 7-Sekunden-Limit wichtig. USDA erlaubt standardmäßig 1.000 Requests/Stunde/IP; der kostenlose `DEMO_KEY` ist wegen seiner extrem kleinen Quoten nicht für Produktivbetrieb geeignet.
+
+Root-Tests: `npm test -- src/resilientSearch.test.ts`. Zum Ausliefern des mobilen Site-Builds muss die Sites/Cloudflare-Hosting-Pipeline nach den GitHub-Änderungen gesondert ausgeführt werden; ein Git-Commit ist noch kein Produktions-Deployment.
