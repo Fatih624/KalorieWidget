@@ -440,3 +440,10 @@ body:not(.native):not(.badge-window) {
 .preview-dot {
   background: var(--accent);
 }
+
+.entry-actions { display:flex;gap:1px; }
+.entry-actions .icon-button:first-child { opacity:.85;color:var(--accent); }
+.entry-actions .icon-button:focus-visible { opacity:1; }
+.repeat-entries { display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px 6px;border:1px solid #dbae6729;border-radius:10px;background:#dbae6709; }
+.repeat-entries:hover { background:#dbae6718; }
+.automatic-favorite { color:var(--accent); }

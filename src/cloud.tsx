@@ -5,12 +5,13 @@ import { Cloud, RefreshCw, ExternalLink, Laptop, Check } from 'lucide-react';
 import { native, saveData } from './bridge';
 import { Modal } from './components';
 import type { AppData } from './domain';
+import { withSyncedFavorites } from './favoriteLearning';
 import { canonical, checkedSnapshot, initialSnapshot, mergeSnapshots, resolveConflicts } from '../sites/kalorie-coach/lib/nutrition';
 import type { Snapshot, CloudDocument, Conflict } from '../sites/kalorie-coach/lib/nutrition';
 
 type Connection = { url: string; gateway: boolean; connected: boolean };
 const snapshotOf = (data: AppData): Snapshot => checkedSnapshot({ favorites: data.favorites, entries: data.entries, goals: data.settings.goals });
-const apply = (data: AppData, snapshot: Snapshot): AppData => ({ ...data, favorites: snapshot.favorites, entries: snapshot.entries, settings: { ...data.settings, goals: snapshot.goals } });
+const apply = (data: AppData, snapshot: Snapshot): AppData => ({ ...withSyncedFavorites(data, snapshot.favorites), entries: snapshot.entries, settings: { ...data.settings, goals: snapshot.goals } });
 function documentOf(value: CloudDocument): CloudDocument {
   if (!Number.isSafeInteger(value.revision) || value.revision < 0) throw new Error('Ungültige Version beim Abgleich.');
   return { revision: value.revision, snapshot: checkedSnapshot(value.snapshot) };

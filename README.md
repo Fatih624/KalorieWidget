@@ -1,13 +1,13 @@
 # Kalorie Widget
 
-Ein lokales Windows-Widget für Kalorien, Makros und schnelle Mahlzeiteneinträge. Version 0.3.2 verwendet weiche Petrolverläufe, dezente Goldkonturen, klare Schrift und farbige Makroanzeigen im Stil von NamazFlow. Ein kleines Kreissymbol bleibt auf dem Desktop; das abgerundete Panel lässt sich aufklappen.
+Ein lokales Windows-Widget für Kalorien, Makros und schnelle Mahlzeiteneinträge. Version 0.3.3 ergänzt wiederholbare Tagebucheinträge und automatische Favoriten. Weiche Petrolverläufe, dezente Goldkonturen und farbige Makroanzeigen orientieren sich an NamazFlow. Ein kleines Kreissymbol bleibt auf dem Desktop; das abgerundete Panel lässt sich aufklappen.
 
 ## Starten
 
 Die für dich bereitgelegten Dateien liegen unter `output/release/Kalorie-Widget.exe` und `output/release/Kalorie-Widget-Setup.exe`. Die ursprünglichen Build-Ergebnisse liegen unter `src-tauri/target/release/`:
 
 - `kalorie-widget.exe`: direkt starten, ohne Installation.
-- `bundle/nsis/Kalorie Widget_0.3.2_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
+- `bundle/nsis/Kalorie Widget_0.3.3_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
 
 Benötigt Windows 10/11 (x64) mit Microsoft Edge WebView2. Der Installer kann die WebView2-Laufzeit bei Bedarf beziehen. Das Paket ist lokal erstellt und nicht mit einem Herausgeberzertifikat signiert.
 
@@ -16,8 +16,9 @@ Benötigt Windows 10/11 (x64) mit Microsoft Edge WebView2. Der Installer kann di
 - **Kreis ziehen:** Widget verschieben. Das Symbol misst 128 × 128 logische Pixel; seine Position und der Vordergrundstatus werden gespeichert. Nahe am Bildschirmrand rastet es nach dem Loslassen ein. Das Panel öffnet daneben und bleibt innerhalb der Arbeitsfläche einschließlich Taskleiste.
 - **Kreis anklicken:** das 416 Pixel breite Panel öffnen. Minus oder ein Klick außerhalb klappen es wieder ein. Offene Formulare und ihre ungespeicherten Entwürfe bleiben beim Einklappen erhalten. Beim App-Start erscheint zunächst der Kreis.
 - **Makros im Kreis:** drei farbige Ringe zeigen Protein, Kohlenhydrate und Fett. Hover oder Tastaturfokus blendet ihre Grammwerte ein; die heutigen Kalorien bleiben sichtbar. Datei- und Mikrofonfreigaben werden durch Auto-Hide nicht unterbrochen.
-- **Favoriten:** ein Klick übernimmt die gespeicherte Portion. Unter „Alle ansehen“ können eigene Favoriten erstellt, bearbeitet und entfernt werden. Häufig verwendete Favoriten erscheinen zuerst.
+- **Favoriten:** ein Klick übernimmt die gespeicherte Portion. Unter „Alle ansehen“ können eigene Favoriten erstellt, bearbeitet und entfernt werden. Häufig verwendete Favoriten erscheinen zuerst. Lebensmittel, die an mindestens drei verschiedenen Tagen innerhalb der letzten 30 Kalendertage erfasst wurden, werden automatisch mit ihrer zuletzt erfassten Portion gespeichert (höchstens zehn automatische Favoriten). Mehrere Einträge am selben Tag zählen einmal; zukünftige Tage zählen nicht. Gleiche Namen werden unabhängig von wechselnden Lebensmittel-IDs erkannt. Entfernte Favoriten werden nicht automatisch erneut angelegt. Die Lernpräferenzen bleiben lokal und sind im JSON-Export enthalten; fertige Favoriten nutzen den bestehenden Cloud-Abgleich. Manuelles Bearbeiten eines automatischen Favoriten macht ihn zu einem normalen Favoriten.
 - **Essen hinzufügen:** Favoriten durchsuchen, z. B. `300 g Skyr`, oder ein Lebensmittel selbst anlegen. Jeder Tagebucheintrag lässt sich durch Klicken bearbeiten. Löschen kann sechs Sekunden lang rückgängig gemacht werden.
+- **Noch einmal essen:** Das Kopiersymbol neben einem Tagebucheintrag erfasst dieselbe Portion mit unveränderten Nährwerten erneut am angezeigten Tag. „Alle noch einmal hinzufügen“ wiederholt die ganze angezeigte Liste genau einmal. Kopien erhalten eigene Eintrags-IDs und die aktuelle Uhrzeit. „Rückgängig“ entfernt nur die gerade hinzugefügten Kopien und lässt andere Einträge erhalten.
 - **Lebensmittel:** explizite Suche nach Produktname oder Barcode bei Open Food Facts. Nur Treffer mit vollständigen Kalorien- und Makrowerten werden angeboten. Werte zunächst pro 100 g; die gewünschte Portion danach wählen und prüfen. Es werden keine Daten an Open Food Facts geschrieben.
 - **Kalenderpfeile:** frühere Tage ansehen und nachtragen. Beim Tageswechsel wechselt die Heute-Ansicht automatisch mit. Der Kreis bleibt auf den aktuellen Tag bezogen.
 - **Woche:** die letzten sieben Tage ansehen und einzelne Tage öffnen. Die Übersicht zählt erfasste Tage und enthält keine Bewertung des Essverhaltens.

@@ -27,6 +27,7 @@ import {
   Undo2,
   LoaderCircle,
   Cloud,
+  CopyPlus,
 } from "lucide-react";
 import { FoodGlyph } from "./FoodGlyph";
 import { MacroBadge } from "./Badge";
@@ -53,6 +54,8 @@ import {
   week,
 } from "./domain";
 import type { AppData, Entry, Food, Settings } from "./domain";
+import { dismissFavorite, foodFavoriteKey, markFavoriteManual, promoteFrequentFoods, restoreFavorite } from "./favoriteLearning";
+import { duplicateEntries, undoAddedEntries } from "./diaryActions";
 import {
   FoodEditor,
   FoodSearch,
@@ -89,6 +92,9 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [date, setDate] = useState(today());
   const [currentDay, setCurrentDay] = useState(today());
+  useEffect(() => {
+    setData(d => d ? promoteFrequentFoods(d, currentDay) : d);
+  }, [data?.entries, data?.favorites, data?.favoriteLearning, currentDay]);
   const [transitioning, setTransitioning] = useState(false);
   const [recording, setRecording] = useState(false);
   const [permissionPending,setPermissionPending]=useState(false);
@@ -222,11 +228,31 @@ export default function App() {
     setTimeout(() => setTransitioning(false), 200);
   }
   function add(food: Food) {
+    if (!data || data.entries.length >= 100000) {
+      notify("Das Tagebuch kann höchstens 100.000 Einträge speichern.");
+      return;
+    }
+    const entry = makeEntry(food, date);
     setData((d) =>
-      d ? { ...d, entries: [...d.entries, makeEntry(food, date)] } : d,
+      d ? { ...d, entries: [...d.entries, entry] } : d,
     );
     setQuery("");
-    notify(`${food.name} hinzugefügt`);
+    notify(`${food.name} hinzugefügt`, () =>
+      setData(d => d ? {...d, entries:d.entries.filter(e => e.entryId !== entry.entryId)} : d),
+    );
+  }
+  function repeatEntries(originals: Entry[]) {
+    if (!originals.length) return;
+    if (!data || data.entries.length + originals.length > 100000) {
+      notify("Nicht genügend Platz: Das Tagebuch kann höchstens 100.000 Einträge speichern.");
+      return;
+    }
+    const copies = duplicateEntries(originals, date);
+    const copiedIds = new Set(copies.map(e => e.entryId));
+    setData(d => d ? {...d, entries:[...d.entries, ...copies]} : d);
+    notify(copies.length === 1 ? `${copies[0].name} noch einmal hinzugefügt` : `${copies.length} Einträge noch einmal hinzugefügt`, () =>
+      setData(d => d ? undoAddedEntries(d, copiedIds) : d),
+    );
   }
   function saveFood(food: Food, favorite: boolean) {
     if (panel?.type !== "food") return;
@@ -248,7 +274,8 @@ export default function App() {
           : current.mode === "favorite"
             ? d.entries
             : [...d.entries, makeEntry(food, date)];
-      return { ...d, favorites, entries };
+      const next = { ...d, favorites, entries };
+      return favorite || current.mode === "favorite" ? markFavoriteManual(next, food) : next;
     });
     setPanel(null);
     setQuery("");
@@ -272,11 +299,10 @@ export default function App() {
     );
   }
   function removeFavorite(food: Food) {
-    setData((d) =>
-      d ? { ...d, favorites: d.favorites.filter((f) => f.id !== food.id) } : d,
-    );
+    const wasAutomatic = data?.favoriteLearning?.automatic.includes(food.id) ?? false;
+    setData(d => d ? dismissFavorite(d, food) : d);
     notify("Favorit entfernt", () =>
-      setData((d) => (d ? { ...d, favorites: [...d.favorites, food] } : d)),
+      setData(d => d ? restoreFavorite(d, food, wasAutomatic) : d),
     );
   }
   async function startVoice() {
@@ -388,12 +414,15 @@ export default function App() {
   const remaining = goals.kcal - total.kcal;
   const days = week(data.entries);
   const activeDays = days.filter((d) => d.count > 0).length;
+  const usesByName = new Map<string, number>(), usesById = new Map<string, number>();
+  for (const entry of data.entries) {
+    const key = foodFavoriteKey(entry);
+    usesByName.set(key, (usesByName.get(key) ?? 0) + 1);
+    usesById.set(entry.id, (usesById.get(entry.id) ?? 0) + 1);
+  }
+  const favoriteUses = (food:Food) => Math.max(usesByName.get(foodFavoriteKey(food)) ?? 0, usesById.get(food.id) ?? 0);
   const favorites = [...data.favorites]
-    .sort(
-      (a, b) =>
-        data.entries.filter((e) => e.id === b.id).length -
-        data.entries.filter((e) => e.id === a.id).length,
-    )
+    .sort((a, b) => favoriteUses(b) - favoriteUses(a))
     .slice(0, 3);
   const displayDate = new Date(date + "T12:00:00");
   const dateLabel =
@@ -689,15 +718,23 @@ export default function App() {
                           {number(e.macros.kcal)}
                           <small> kcal</small>
                         </span>
-                        <IconButton
-                          label={`${e.name} entfernen`}
-                          onClick={() => removeEntry(e)}
-                        >
-                          <Trash2 size={13} />
-                        </IconButton>
+                        <div className="entry-actions">
+                          <IconButton label={`${e.name} noch einmal für diesen Tag hinzufügen`} onClick={() => repeatEntries([e])}>
+                            <CopyPlus size={14} />
+                          </IconButton>
+                          <IconButton
+                            label={`${e.name} entfernen`}
+                            onClick={() => removeEntry(e)}
+                          >
+                            <Trash2 size={13} />
+                          </IconButton>
+                        </div>
                       </div>
                     </div>
                   ))}
+                  <button className="repeat-entries text-button" onClick={() => repeatEntries(entries)} aria-label={`Alle ${entries.length} Einträge für diesen Tag noch einmal hinzufügen`}>
+                    <CopyPlus size={14} /> Alle noch einmal hinzufügen
+                  </button>
                 </div>
               )}
             </section>
@@ -894,6 +931,7 @@ export default function App() {
                 <div>
                   <strong>{f.name}</strong>
                   <small>
+                    {data.favoriteLearning?.automatic.includes(f.id) && <span className="automatic-favorite">Automatisch · </span>}
                     {number(f.grams)} g · {number(f.macros.kcal)} kcal
                   </small>
                 </div>
@@ -931,8 +969,11 @@ export default function App() {
             Neuer Favorit
           </button>
           <p className="muted small">
-            Die Startfavoriten sind Richtwerte. Passe sie an deine Produkte an.
-            Häufig genutzte Favoriten erscheinen auf der Startansicht zuerst.
+            An mindestens drei verschiedenen Tagen in den letzten 30 Tagen gegessen?
+            Dann speichern wir das Lebensmittel automatisch als Favoriten, mit
+            der zuletzt erfassten Portion. Bis zu zehn automatische Favoriten.
+            Entfernte Favoriten bleiben entfernt. Häufig genutzte Favoriten
+            erscheinen auf der Startansicht zuerst.
           </p>
         </Modal>
       )}
