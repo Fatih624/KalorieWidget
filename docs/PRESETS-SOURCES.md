@@ -106,3 +106,12 @@ Quelle: Open Food Facts contributors, [Open Database License (ODbL)](https://ope
 - [Lidl · Crownfield Haferflocken zart](https://world.openfoodfacts.org/product/40897677) · Barcode 40897677
 - [Lidl · Freshona Bio Kichererbsen (Dose)](https://world.openfoodfacts.org/product/4056489844747) · Barcode 4056489844747
 - [Lidl · Freshona Bio rote Kidneybohnen (Dose)](https://world.openfoodfacts.org/product/4056489467595) · Barcode 4056489467595
+
+
+## BLS-Standardbrötchen für lokale Ausfallsuche
+
+Zwei Standard-Datensätze aus dem deutschen Bundeslebensmittelschlüssel (BLS), je 100 g essbarer Anteil:
+- [Weizenbrötchen B511000](https://blsdb.de/food?foodId=38113): 280 kcal, 10,09 g Protein, 53,97 g Kohlenhydrate, 1,81 g Fett. Das UI zeigt als **Beispielportion** 55 g = 154 kcal, 5,55 g Protein, 29,68 g Kohlenhydrate, 1,00 g Fett.
+- [Weizenvollkornbrötchen B411000](https://blsdb.blprod.se.ble.de/): 288 kcal, 10,50 g Protein, 49,00 g Kohlenhydrate, 3,26 g Fett. Beispielportion 55 g = 158,4 kcal, 5,78 g Protein, 26,95 g Kohlenhydrate, 1,79 g Fett.
+
+55 g ist eine frei gewählte Portionsgröße, nicht die garantierte Gewichtseinheit eines Bäckereiartikels. Markenwerte können abweichen; wenn möglich, Produktetikett prüfen. Diese beiden generischen Lebensmittel sind keine Barcode-Produkte.
