@@ -33,6 +33,11 @@ describe('serverseitige Produktsuche', () => {
     expect(new URL(String(fetcher.mock.calls[0][0])).pathname).toBe('/api/v2/product/1234567890123.json');
   });
 
+  it('verwirft einen abweichenden Produktbarcode statt falsche Produktwerte zu liefern', async () => {
+    const { search } = setup(async () => response({ status: 1, product }));
+    await expect(search('1234567890124')).rejects.toMatchObject({ code: 'PRODUCT_DATABASE_INVALID_RESPONSE' });
+  });
+
   it('meldet 429 mit Retry-After und fragt während der Sperrzeit nicht erneut an', async () => {
     let now = 0;
     const { search, fetcher } = setup(async () => response({}, 429, { 'retry-after': '90' }), { now: () => now });
@@ -88,6 +93,17 @@ describe('serverseitige Produktsuche', () => {
     const foods = await search('Tofu'); expect(foods).toHaveLength(1); expect(foods[0].macros.kcal).toBeCloseTo(100);
   });
 
+  it('filtert ungültige Produktnamen, Barcodes und Nährwerttypen', async () => {
+    const { search } = setup(async () => response({ products: [
+      { ...product, product_name: ' ' }, { ...product, code: 'invalid' },
+      { ...product, nutriments: { ...product.nutriments, proteins_100g: '15' } },
+      { ...product, nutriments: { ...product.nutriments, fat_100g: -1 } },
+      product,
+    ] }));
+    expect(await search('Tofu')).toMatchObject([{ name: 'Tofu' }]);
+    expect(await search('Tofu')).toHaveLength(1);
+  });
+
   it('verwendet einen begrenzten TTL-Cache ohne veränderbare Rückgabereferenzen', async () => {
     let now = 0;
     const { search, fetcher } = setup(async () => response({ products: [product] }), { now: () => now, cacheSize: 2, cacheTtlMs: 1000 });
@@ -105,6 +121,15 @@ describe('serverseitige Produktsuche', () => {
     await expect(failed.search('Tofu')).rejects.toMatchObject({ status: 502 });
     await expect(failed.search('Tofu')).rejects.toMatchObject({ status: 502 });
     expect(failed.fetcher).toHaveBeenCalledTimes(2);
+  });
+
+  it('gibt parallelen Aufrufern unabhängig veränderbare Produktdaten', async () => {
+    const { search, fetcher } = setup(async () => response({ products: [product] }));
+    const [first, second] = await Promise.all([search('Tofu'), search(' TOFU ')]);
+    first[0].macros.kcal = 1;
+    expect(second[0].macros.kcal).toBe(150);
+    expect((await search('Tofu'))[0].macros.kcal).toBe(150);
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
   it('weist ungültige Suchbegriffe ohne Netzwerkanfrage ab', async () => {

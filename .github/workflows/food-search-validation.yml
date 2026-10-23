@@ -3,7 +3,12 @@ name: Food search validation
 on:
   push:
     paths:
-      - 'src/resilientSearch.test.ts'
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'sites/kalorie-coach/package*.json'
+      - 'sites/kalorie-coach/tsconfig.json'
+      - 'sites/kalorie-coach/cloudflare-env.d.ts'
       - 'sites/kalorie-coach/lib/**'
       - 'sites/kalorie-coach/app/**'
       - '.github/workflows/food-search-validation.yml'
@@ -20,7 +25,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm test -- src/resilientSearch.test.ts src/productSearch.test.ts
+      - run: npm test
       - run: npx tsc -b --pretty false
       - run: npm ci --prefix sites/kalorie-coach --no-audit --no-fund
       - run: ./sites/kalorie-coach/node_modules/.bin/tsc --project sites/kalorie-coach/tsconfig.json --noEmit --pretty false

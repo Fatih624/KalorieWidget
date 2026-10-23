@@ -80,6 +80,7 @@ export function createProductSearch(options: Options = {}) {
         if (endpoint === 'product') {
           if (result.status === 0) return [];
           if (!record(result.product)) throw invalidResponse();
+          if (result.product.code !== undefined && result.product.code !== query) throw invalidResponse();
           return foodsFrom([{ ...result.product, code: result.product.code ?? query }]);
         }
         if (!Array.isArray(result.products)) throw invalidResponse();
@@ -112,7 +113,7 @@ export function createProductSearch(options: Options = {}) {
     if (pending) return structuredClone(await pending);
     const result = load(query, endpoint);
     if (inFlight.size < cacheSize) inFlight.set(key, result);
-    try { return await result; } finally { if (inFlight.get(key) === result) inFlight.delete(key); }
+    try { return structuredClone(await result); } finally { if (inFlight.get(key) === result) inFlight.delete(key); }
   };
 }
 

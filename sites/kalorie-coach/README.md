@@ -160,10 +160,16 @@ Produktabfragen über `/api/coach/search?q=...` verwenden nacheinander:
 1. Open Food Facts (Live-Barcodes oder Text über `/cgi/search.pl`), mit 6-s-Timeout sowie begrenztem Cache/Cooldown.
 2. Optional USDA FoodData Central (unabhängiger Server, nur Textsuche, 5-s-Timeout), wenn die Cloudflare-Umgebungsvariable `USDA_API_KEY` gesetzt ist. Ein eigener Schlüssel ist erforderlich. **Keinen Schlüssel in Git oder im Browser speichern.** Registrierung: https://fdc.nal.usda.gov/api-guide/ .
 3. Offline-Presets aus `FOOD_PRESETS`, einschließlich BLS-Brötchenwerten und vorhandenen Lidl-Barcodes. Unbekannte Barcodes werden niemals durch ähnliche Produkte ersetzt.
-4. Falls die ganze App-API nicht erreichbar ist: Client-Fallback im Erfassen-Dialog, bestehend aus Favoriten, Verlauf und diesen Presets.
+4. Im Erfassen-Dialog werden lokale Serverantworten und leere Treffer zusätzlich mit Favoriten, Verlauf und Presets des Geräts abgeglichen. Persönliche Portionen haben Vorrang vor gleichnamigen Presets. Auch bei API-Ausfall oder nach spätestens 13 Sekunden greift dieser Client-Fallback; dabei werden persönliche Lebensmittel nicht an externe Anbieter übertragen.
 
 Response: `{ foods, source, degraded, notice? }` (kompatibel mit bisherigen Clients, die nur `foods` lesen). Eine Ersatzquelle wird sichtbar benannt, Mengen und Makros bleiben manuell prüfbar. Ein leeres Suchergebnis ist **kein** Lebensmittelvorschlag. Die Nutzung der Produktsuche verändert das Ernährungstagebuch nicht automatisch.
 
+Produkttreffer sind Alternativen: Zuerst genau einen Treffer auswählen, dann Portion und Nährwerte prüfen und ausdrücklich bestätigen. Die Trefferliste wird niemals gesammelt als Mahlzeit übernommen.
+
 Open Food Facts beschränkt Suchabfragen auf 10/min/IP und Produktabfragen auf 15/min/IP; mit Cloudflare teilen Nutzer ggf. eine ausgehende IP. Deshalb sind Caching, Cooldown, lokale Ersatzdaten und das bestehende 7-Sekunden-Limit wichtig. USDA erlaubt standardmäßig 1.000 Requests/Stunde/IP; der kostenlose `DEMO_KEY` ist wegen seiner extrem kleinen Quoten nicht für Produktivbetrieb geeignet.
 
-Root-Tests: `npm test -- src/resilientSearch.test.ts`. Zum Ausliefern des mobilen Site-Builds muss die Sites/Cloudflare-Hosting-Pipeline nach den GitHub-Änderungen gesondert ausgeführt werden; ein Git-Commit ist noch kein Produktions-Deployment.
+USDA begrenzt auch das Einlesen des Antwortkörpers auf fünf Sekunden. Gleichzeitige identische Suchanfragen werden zusammengefasst; Cache-Antworten und lokale Treffer sind unabhängige Kopien. Unvollständige Nährwerte, ungültige USDA-IDs und abweichende OFF-Barcodeantworten werden verworfen.
+
+API-Verträge und Quoten: [OFF-Dokumentation](https://openfoodfacts.github.io/openfoodfacts-server/api/), [USDA API Guide](https://fdc.nal.usda.gov/api-guide/). OFF v2 und `/cgi/search.pl` werden für die bestehenden Leseabfragen weiterhin unterstützt.
+
+Root-Tests: `npm test` (einschließlich Provider-, Cache-, Timeout- und Client-Fallback-Regressionsprüfungen). Zum Ausliefern des mobilen Site-Builds muss die Sites/Cloudflare-Hosting-Pipeline nach den GitHub-Änderungen gesondert ausgeführt werden; ein Git-Commit ist noch kein Produktions-Deployment.

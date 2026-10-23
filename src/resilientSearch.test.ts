@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createResilientSearch, searchUsda } from '../sites/kalorie-coach/lib/search-fallback';
 import { localProductMatches } from '../sites/kalorie-coach/lib/local-product-matches';
 import { FOOD_PRESETS } from '../sites/kalorie-coach/lib/food-presets';
@@ -11,6 +11,7 @@ const usdaProduct = {
     { nutrientId: 1005, value: 54 }, { nutrientId: 1004, value: 1.8 }
   ]
 };
+afterEach(() => vi.useRealTimers());
 
 describe('stufenweiser Produkt-Fallback', () => {
   it('lässt einen gültigen Open Food Facts Treffer unverändert', async () => {
@@ -56,6 +57,65 @@ describe('stufenweiser Produkt-Fallback', () => {
     expect((await search('Brötchen')).source).toBe('local');
   });
 
+  it('überspringt USDA ohne Schlüssel und probiert USDA auch nach leeren Primärtreffern', async () => {
+    const request = vi.fn(async () => Response.json({ foods: [usdaProduct] }));
+    const withoutKey = createResilientSearch({ primary: async () => [], usdaApiKey: ' ', fetch: request });
+    expect((await withoutKey('Brötchen')).source).toBe('local');
+    expect(request).not.toHaveBeenCalled();
+    const withKey = createResilientSearch({ primary: async () => [], usdaApiKey: 'test-secret', fetch: request });
+    expect((await withKey('Brötchen')).source).toBe('usda');
+  });
+
+  it.each(['request', 'body'])('erreicht den lokalen Fallback bei hängendem USDA %s', async phase => {
+    vi.useFakeTimers();
+    let signal: AbortSignal | null | undefined;
+    const request = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      signal = init?.signal;
+      if (phase === 'request') return new Promise<Response>(() => {});
+      return { ok: true, json: () => new Promise(() => {}) } as Response;
+    });
+    const search = createResilientSearch({ primary: unavailable, usdaApiKey: 'test-secret', fetch: request, usdaTimeoutMs: 50 });
+    const check = expect(search('Brötchen')).resolves.toMatchObject({ source: 'local', degraded: true });
+    await vi.advanceTimersByTimeAsync(50);
+    await check;
+    expect(signal?.aborted).toBe(true);
+  });
+
+  it('verwirft ungültige USDA-Daten und übernimmt nur vollständige Lebensmittel', async () => {
+    const request = vi.fn(async () => Response.json({ foods: [
+      null, { ...usdaProduct, fdcId: -1 }, { ...usdaProduct, fdcId: 1.5 },
+      { ...usdaProduct, description: ' ' }, { ...usdaProduct, foodNutrients: [] },
+      { ...usdaProduct, foodNutrients: usdaProduct.foodNutrients.map(n => ({ ...n, value: -1 })) },
+      { ...usdaProduct, foodNutrients: usdaProduct.foodNutrients.map(n => ({ ...n, value: String(n.value) })) },
+      usdaProduct,
+    ] }));
+    expect(await searchUsda('bread', 'test-secret', request)).toMatchObject([{ id: 'usda-987654' }]);
+    const malformed = vi.fn(async () => new Response('<html>error</html>'));
+    expect(await searchUsda('bread', 'test-secret', malformed)).toEqual([]);
+  });
+
+  it('fasst parallele Fallback-Anfragen zusammen und trennt ihre Rückgaben', async () => {
+    const primary = vi.fn(unavailable);
+    const request = vi.fn(async () => Response.json({ foods: [usdaProduct] }));
+    const search = createResilientSearch({ primary, fetch: request, usdaApiKey: 'test-secret' });
+    const [first, second] = await Promise.all([search('bread'), search(' BREAD ')]);
+    first.foods[0].macros.kcal = 1;
+    expect(second.foods[0].macros.kcal).toBe(280);
+    expect((await search('bread')).foods[0].macros.kcal).toBe(280);
+    expect(primary).toHaveBeenCalledTimes(1);
+    expect(request).toHaveBeenCalledTimes(1);
+  });
+
+  it('fragt nach Ablauf des lokalen Caches erneut nach Live-Produkten', async () => {
+    vi.useFakeTimers();
+    const primary = vi.fn(unavailable);
+    const search = createResilientSearch({ primary });
+    expect((await search('Brötchen')).source).toBe('local');
+    await vi.advanceTimersByTimeAsync(120_001);
+    expect((await search('Brötchen')).source).toBe('local');
+    expect(primary).toHaveBeenCalledTimes(2);
+  });
+
   it('liefert bei kompletten Ausfällen keine irreführenden erfundenen Lebensmittel', async () => {
     const search = createResilientSearch({ primary: unavailable, localFoods: [] });
     const result = await search('unbekanntesessen123');
@@ -77,5 +137,12 @@ describe('stufenweiser Produkt-Fallback', () => {
     (await search('Brötchen')).foods[0].name = 'Changed';
     expect((await search('Brötchen')).foods[0].name).not.toBe('Changed');
     expect(primary).toHaveBeenCalledTimes(1);
+  });
+
+  it('isoliert lokale Treffer auch von den unveränderlichen Presets', async () => {
+    const original = structuredClone(FOOD_PRESETS);
+    const search = createResilientSearch({ primary: unavailable });
+    (await search('Brötchen')).foods[0].name = 'Changed';
+    expect(FOOD_PRESETS).toEqual(original);
   });
 });

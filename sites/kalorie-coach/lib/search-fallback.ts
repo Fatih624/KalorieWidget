@@ -24,7 +24,7 @@ const record = (value: unknown): value is Record<string, unknown> =>
 function fromUsda(payload: unknown): Food[] {
   if (!record(payload) || !Array.isArray(payload.foods)) return [];
   return payload.foods.slice(0, 20).flatMap((item): Food[] => {
-    if (!record(item) || (typeof item.fdcId !== 'number' || !Number.isSafeInteger(item.fdcId)) ||
+    if (!record(item) || (typeof item.fdcId !== 'number' || !Number.isSafeInteger(item.fdcId) || item.fdcId <= 0) ||
         typeof item.description !== 'string' || !item.description.trim() ||
         !Array.isArray(item.foodNutrients)) return [];
     const values = new Map<number, number>();
@@ -55,18 +55,23 @@ export async function searchUsda(
   const url = new URL('https://api.nal.usda.gov/fdc/v1/foods/search');
   url.searchParams.set('api_key', apiKey);
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<Food[]>(resolve => {
+    timer = setTimeout(() => { resolve([]); controller.abort(); }, timeoutMs);
+  });
   try {
-    const response = await request(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify({ query, pageSize: 12, dataType: ['Foundation', 'SR Legacy', 'Branded'] }),
-      signal: controller.signal,
-    });
-    if (!response.ok) return [];
-    return fromUsda(await response.json());
+    return await Promise.race([timeout, (async () => {
+      const response = await request(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'application/json' },
+        body: JSON.stringify({ query, pageSize: 12, dataType: ['Foundation', 'SR Legacy', 'Branded'] }),
+        signal: controller.signal,
+      });
+      if (!response.ok) return [];
+      return fromUsda(await response.json());
+    })()]);
   } catch { return []; }
-  finally { clearTimeout(timeout); }
+  finally { clearTimeout(timer); }
 }
 
 export function createResilientSearch(options: SearchOptions = {}) {
@@ -76,12 +81,8 @@ export function createResilientSearch(options: SearchOptions = {}) {
   const request = options.fetch ?? fetch;
   // Bounded in-memory cache avoids repeated external requests from warm workers.
   const cache = new Map<string, { until: number; result: ResilientSearchResult }>();
-  return async (input: string): Promise<ResilientSearchResult> => {
-    const query = input.trim();
-    if (query.length < 2 || query.length > 120)
-      throw new ProductSearchError(400, 'PRODUCT_SEARCH_INVALID_QUERY', 'Bitte 2 bis 120 Zeichen suchen.');
-    const key = query.toLocaleLowerCase('de-DE'), hit = cache.get(key);
-    if (hit && hit.until > Date.now()) return structuredClone(hit.result);
+  const inFlight = new Map<string, Promise<ResilientSearchResult>>();
+  async function load(query: string, key: string): Promise<ResilientSearchResult> {
     let primaryFailed = false;
     try {
       const foods = await primary(query);
@@ -125,5 +126,18 @@ export function createResilientSearch(options: SearchOptions = {}) {
     if (cache.size >= 128) cache.delete(cache.keys().next().value!);
     cache.set(key, { until: Date.now() + (local.length ? 2 * 60_000 : 30_000), result: structuredClone(result) });
     return result;
+  }
+  return async (input: string): Promise<ResilientSearchResult> => {
+    const query = input.trim();
+    if (query.length < 2 || query.length > 120)
+      throw new ProductSearchError(400, 'PRODUCT_SEARCH_INVALID_QUERY', 'Bitte 2 bis 120 Zeichen suchen.');
+    const key = query.toLocaleLowerCase('de-DE'), hit = cache.get(key);
+    if (hit && hit.until > Date.now()) return structuredClone(hit.result);
+    const pending = inFlight.get(key);
+    if (pending) return structuredClone(await pending);
+    const result = load(query, key);
+    if (inFlight.size < 128) inFlight.set(key, result);
+    try { return structuredClone(await result); }
+    finally { if (inFlight.get(key) === result) inFlight.delete(key); }
   };
 }
