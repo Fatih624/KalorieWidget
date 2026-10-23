@@ -1,0 +1,24 @@
+name: Food search validation
+
+on:
+  push:
+    paths:
+      - 'src/resilientSearch.test.ts'
+      - 'sites/kalorie-coach/lib/**'
+      - 'sites/kalorie-coach/app/**'
+      - '.github/workflows/food-search-validation.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm test -- src/resilientSearch.test.ts src/productSearch.test.ts
+      - run: npx tsc -b --pretty false
