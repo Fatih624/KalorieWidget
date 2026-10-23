@@ -54,7 +54,7 @@ export function createProductSearch(options: Options = {}) {
     }
     const controller = new AbortController(); let timer: ReturnType<typeof setTimeout> | undefined;
     const timeout = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => { reject(new ProductSearchError(504, 'PRODUCT_DATABASE_TIMEOUT', 'Open Food Facts antwortet zu langsam. Bitte später erneut versuchen.')); controller.abort(); }, options.timeoutMs ?? 12_000);
+      timer = setTimeout(() => { reject(new ProductSearchError(504, 'PRODUCT_DATABASE_TIMEOUT', 'Open Food Facts antwortet zu langsam. Bitte später erneut versuchen.')); controller.abort(); }, options.timeoutMs ?? 6_000);
     });
     try {
       const foods = await Promise.race([timeout, (async () => {
