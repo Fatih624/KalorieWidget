@@ -1,0 +1,442 @@
+/* NamazFlow palette, with the existing panel geometry and interactions intact. */
+:root {
+  --muted: #b4c3c2;
+  --accent: #56e4ce;
+  --line: #dbae672b;
+  --panel-white: #f6f1e9;
+  --panel-gold: #dbae67;
+  --panel-soft: #d7c9b0;
+  color: var(--panel-white);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+body:not(.native):not(.badge-window) {
+  background: radial-gradient(ellipse at 35% 0%, #29444b, #101e25 72%);
+}
+
+.widget.surface,
+.boot.surface {
+  background:
+    radial-gradient(ellipse at 0% 0%, #29444b 0%, transparent 66%),
+    linear-gradient(155deg, #1b3037, #101e25);
+  border-color: #dbae676b;
+  box-shadow: inset 0 1px 0 #f6f1e910, inset 0 -1px 0 #07151a70;
+}
+
+.widget-header {
+  background: linear-gradient(110deg, #29444b70, #1b303735);
+  border-bottom-color: #dbae672e;
+}
+
+.brand,
+.ring-label strong,
+.macro-heading b,
+.section-heading h2,
+.favorite-card > strong,
+.entry-main strong,
+.modal-header h2 {
+  color: var(--panel-white);
+}
+
+.brand-mark {
+  background: linear-gradient(145deg, #dbae6717, #56e4ce0b);
+  border: 1px solid #dbae6742;
+  color: #e8c48c;
+}
+
+.brand-light,
+.date-label,
+.date-label span,
+.text-button,
+.icon-button {
+  color: var(--panel-soft);
+}
+
+.icon-button:hover:not(:disabled) {
+  background: #dbae6718;
+  color: var(--panel-white);
+}
+
+.icon-button:active:not(:disabled) {
+  background: #dbae6727;
+}
+
+.icon-button.active {
+  color: var(--accent);
+  background: #56e4ce12;
+}
+
+.eyebrow,
+.section-heading h2 svg,
+.week-label > svg {
+  color: var(--panel-gold);
+}
+
+.widget-scroll,
+.modal,
+.search-results {
+  scrollbar-color: #75827a68 #14262c;
+}
+
+.ring-track {
+  stroke: #b5c9c32a;
+}
+
+.ring-value {
+  stroke: var(--accent);
+}
+
+.remaining,
+.little-spark,
+.text-button:hover {
+  color: var(--accent);
+}
+
+.ring-label span,
+.calorie-copy > .muted,
+.progress-caption,
+.favorite-card > small,
+.entry-main small,
+.entry-right small,
+.week-label small,
+.local-status,
+.favorite-list-row small,
+.food-result small,
+.toggle-row small,
+.weekly-chart small,
+.weekly-chart > button > span,
+.weekly-summary > strong span {
+  color: var(--muted);
+}
+
+.macro-row {
+  background: linear-gradient(115deg, #29444b85, #1a2d344d);
+  border-color: #dbae6733;
+  box-shadow: inset 0 1px 0 #f6f1e905;
+}
+
+.macro-row:hover {
+  background: linear-gradient(115deg, #304f558c, #20373e80);
+}
+
+.macro-heading {
+  color: #e5e8df;
+}
+
+.macro-track {
+  background: #d6e5df21;
+}
+
+.favorite-card {
+  background: linear-gradient(145deg, #29444b91, #1b303773);
+  border-color: #dbae673d;
+  box-shadow: inset 0 1px 0 #f6f1e908, 0 3px 8px #07151a18;
+}
+
+.favorite-card:hover {
+  background: linear-gradient(145deg, #325158, #20383e);
+  border-color: #dbae6780;
+  box-shadow: inset 0 1px 0 #f6f1e910, 0 4px 10px #07151a28;
+}
+
+.favorite-plus {
+  background: #dbae671a;
+  color: #efd3a6;
+  border: 1px solid #dbae6730;
+}
+
+.favorite-card:hover .favorite-plus {
+  background: #dbae672d;
+}
+
+.food-glyph {
+  background: #56e4ce12;
+  color: var(--macro-carbs);
+}
+
+.food-grain {
+  background: #dbae671b;
+  color: var(--macro-fat);
+}
+
+.food-fruit {
+  background: #f6a0cc17;
+  color: var(--macro-protein);
+}
+
+.food-meal {
+  background: #56e4ce14;
+  color: #a9d6cf;
+}
+
+.add-favorite {
+  color: var(--panel-soft);
+}
+
+.count-badge {
+  background: #dbae6710;
+  color: var(--panel-soft);
+}
+
+.diary-entry,
+.food-result,
+.favorite-list-row {
+  background: linear-gradient(110deg, #29444b64, #192d333f);
+  border-color: #dbae6729;
+}
+
+.diary-entry:hover,
+.food-result:hover {
+  background: #29444b9e;
+  border-color: #dbae6750;
+}
+
+.empty-diary {
+  background: linear-gradient(140deg, #29444b3d, #101e2526);
+  border-color: #dbae6740;
+}
+
+.empty-diary:hover {
+  background: #29444b68;
+  border-color: #dbae6770;
+}
+
+.empty-icon {
+  background: #dbae6714;
+  color: #dcc391;
+}
+
+.empty-icon > span {
+  background: #243c42;
+}
+
+.empty-diary > strong {
+  color: #e1e5dc;
+}
+
+.empty-diary > span,
+.food-result .source,
+.empty,
+.attribution {
+  color: var(--muted);
+}
+
+.week-link {
+  color: #e4e4d8;
+  border-top-color: var(--line);
+}
+
+.mini-bars > span {
+  background: #9ab9af55;
+}
+
+.mini-bars > .today {
+  background: var(--panel-gold);
+}
+
+.widget-footer {
+  background: linear-gradient(120deg, #172a31, #13242b);
+  border-top-color: #dbae6735;
+}
+
+.quick-input {
+  background: linear-gradient(115deg, #29444b8a, #1c3239);
+  border-color: #dbae6757;
+  box-shadow: inset 0 1px 3px #07151a25;
+}
+
+.quick-input input {
+  color: var(--panel-white);
+}
+
+.quick-input input::placeholder {
+  color: #c0c7bd;
+}
+
+.quick-input:focus-within {
+  border-color: #56e4ce9e;
+  box-shadow: 0 0 0 2px #56e4ce12;
+}
+
+.quick-input.recording {
+  border-color: #ff94b0;
+}
+
+.quick-add,
+.primary {
+  background: linear-gradient(145deg, #a6ead8, #67cdbc);
+  color: #102c2c;
+  border-color: #b8f0dc70;
+  box-shadow: inset 0 1px 0 #f6f1e92e, 0 2px 5px #06151b26;
+}
+
+.primary:hover:not(:disabled),
+.quick-add:hover:not(:disabled) {
+  background: linear-gradient(145deg, #baf3e1, #81dcc7);
+  box-shadow: inset 0 1px 0 #f6f1e93d, 0 3px 7px #06151b35;
+}
+
+.secondary {
+  background: linear-gradient(135deg, #29444b, #20363c);
+  border-color: #dbae674d;
+  color: #e7dcc7;
+}
+
+.secondary:hover:not(:disabled) {
+  background: #345057;
+}
+
+.scroll-cue {
+  background: #223b42;
+  border-top-color: #dbae672e;
+  color: #ded7c8;
+}
+
+.scroll-cue:hover {
+  background: #2d484e;
+}
+
+.local-status > span {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.daily-nudge {
+  color: #d0d9c9;
+}
+
+.modal {
+  background:
+    radial-gradient(ellipse at 10% 0%, #29444b, transparent 80%),
+    linear-gradient(150deg, #1c3138, #12232a);
+  border-color: #dbae6770;
+  color: var(--panel-white);
+  box-shadow: inset 0 1px 0 #f6f1e90f, 0 12px 30px #06121780;
+}
+
+.modal::backdrop {
+  background: #071419cf;
+}
+
+.modal-body {
+  color: #e5e7df;
+}
+
+.modal input,
+.modal select {
+  background: #12272d;
+  border-color: #dbae6745;
+  color: var(--panel-white);
+}
+
+.modal input::placeholder {
+  color: #aebeb7;
+}
+
+.modal input:focus,
+.modal select:focus {
+  border-color: #56e4ce9e;
+  background: #1c343a;
+}
+
+.modal input[type="range"] {
+  background: none;
+  border: 0;
+}
+
+.modal select option {
+  background: #1b3037;
+  color: var(--panel-white);
+}
+
+.form-stack > label:not(.check-row):not(.toggle-row),
+.form-grid > label,
+.portion-row > label {
+  color: #ded6c6;
+}
+
+.modal .tabs {
+  background: #102229;
+  border-color: #dbae671c;
+}
+
+.modal .tabs > button {
+  color: #c2c8bc;
+}
+
+.modal .tabs button.selected {
+  background: linear-gradient(145deg, #35514f, #29433f);
+  color: #efe1c5;
+  box-shadow: inset 0 1px 0 #dbae6730;
+}
+
+.modal .tabs > button:hover:not(:disabled) {
+  background: #29444b;
+  color: var(--panel-white);
+}
+
+.notice {
+  background: #29444b70;
+  border-color: #dbae6738;
+  color: #d5ded3;
+}
+
+.notice > svg,
+.status-inline,
+.toast > svg,
+.toast button {
+  color: var(--accent);
+}
+
+.toggle-row input {
+  background: #183037;
+  border-color: #dbae6742;
+}
+
+.toggle-row input::before {
+  background: #abb7ae;
+}
+
+.toggle-row input:checked {
+  background: #56e4ce35;
+  border-color: #56e4ce70;
+}
+
+.toggle-row input:checked::before {
+  background: #a9edda;
+}
+
+.weekly-summary > strong {
+  color: #e6c28a;
+}
+
+.weekly-chart > button:hover {
+  background: #dbae6712;
+}
+
+.weekly-bar-track {
+  background: #b5c9c314;
+}
+
+.weekly-bar-track > div {
+  background: linear-gradient(0deg, #426e6a, #9ecfc0);
+}
+
+.weekly-bar-track > .today {
+  background: linear-gradient(0deg, #a77e43, #e5c38b);
+}
+
+.toast {
+  background: linear-gradient(135deg, #29444b, #1b343a);
+  color: var(--panel-white);
+  border-color: #dbae6775;
+  box-shadow: 0 5px 18px #07151a55;
+}
+
+.preview-note {
+  color: var(--panel-soft);
+}
+
+.preview-dot {
+  background: var(--accent);
+}

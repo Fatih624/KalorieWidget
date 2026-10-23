@@ -119,3 +119,15 @@ Der Import ist ein validierter Kalorie-Widget-Sicherungsimport. Ein persönliche
 - Computer-Use-Sichtpruefung der installierten Version: Kreis im geschlossenen Zustand und nach Oeffnen des Panels ohne sichtbaren hellen Bereich oben rechts. Panel weiterhin funktionsfaehig, heute 565 kcal und sechs Eintraege.
 - Alle 17 gespeicherten Tagebucheintraege nach der Installation mit der vorherigen Sicherung verglichen: unveraendert. Sicherung unter %LOCALAPPDATA%/KalorieWidget-Backups/install-render-fix-20261023-150146.
 - Sichtpruefung auf diesem Arbeitsplatz bei aktueller Bildschirmskalierung; weitere Monitore/DPI-Stufen nicht erneut getestet.
+
+## NamazFlow-Stil - Version 0.3.1
+
+- Rein visuelle Ueberarbeitung: dunkelpetrolfarbene Verlaeufe, warme Goldkonturen, dezente Schatten und abgestimmte Karten, Dialoge und Formulare. Die drei Makrofarben bleiben erhalten.
+- Badge-Flachengrafik und Ringe bleiben SVG-Vektoren. Der sichtbare Kreis liegt weiter innen als die native Windows-Region; keine Bitmap-Skalierung oder Unschaerfefilter auf Text und Ringen.
+- Fensterabmessungen, Ereignisbehandlung, Datenformat, Nahrungsberechnungen, Synchronisierung und Anbieteraufrufe unveraendert. Keine zusaetzlichen Animationen oder kostenpflichtigen API-Testanfragen.
+- Alle 22 vorhandenen Frontend-Tests und TypeScript-/Vite-Build bestanden. Zusaetzliche Codepruefung von CSS-Kaskade und SVG-Geometrie ohne konkreten Befund.
+- Finaler nativer Release-Build und NSIS-Paket erfolgreich. Nach der Sichtpruefung alle 22 Frontend-Tests erneut bestanden; git diff --check ohne Befund.
+- Native Sichtpruefung des finalen Builds: Kreis und Makro-Detailanzeige lesbar, Verlauf und Goldkontur sichtbar, Oeffnen/Einklappen funktionieren. Panel zeigt die bisherigen sechs Tageseintraege und 565 kcal. Einstellungen geoeffnet und ohne Aenderungen geschlossen; Darstellung von Dialog, Tabs und Schaltern im neuen Theme geprueft.
+- Der Kreis ist innerhalb seiner sichtbaren Vektorkontur geschlossen; die aeussere, unbemalte Fensterflaeche ist absichtlich transparent. Keine Bitmap oder Filter-Weichzeichnung der Ringe verwendet. Weitere DPI-Stufen und physische Monitore nicht erneut getestet.
+- Version 0.3.1 ueber das aktuelle NSIS-Paket installiert (Exitcode 0); Windows-Installation meldet DisplayVersion 0.3.1 und wurde neu gestartet. Alle 17 Tagebucheintraege stimmen mit der Sicherung vor der Ueberarbeitung ueberein.
+- Sicherung: %LOCALAPPDATA%/KalorieWidget-Backups/before-soft-theme-20261023-151235. Aktuelle portable EXE und Installer liegen unter output/release.

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { dragWindow, loadData, restoreWindow } from './bridge';
@@ -10,6 +10,7 @@ const compactGrams = (v:number) => v>=1000 ? `${number(v/1000, v>=10000?0:1)}k` 
 export function MacroBadge({ value, onToggle, standalone = false }: { value: BadgeState; onToggle: () => void; standalone?: boolean }) {
   const start = useRef<{x:number;y:number}|null>(null), dragged = useRef(false);
   const [details,setDetails]=useState(false);
+  const surfaceId = `badge-surface-${useId().replace(/:/g, '')}`;
   const keys = ['protein','carbs','fat'] as const;
   const labels = {protein:'P',carbs:'KH',fat:'F'};
   return <button className={`macro-badge ${details?'show-details':''} ${value.open?'panel-open':''} ${value.reducedMotion?'reduce-motion':''}`} aria-expanded={value.open}
@@ -21,8 +22,18 @@ export function MacroBadge({ value, onToggle, standalone = false }: { value: Bad
     onPointerUp={()=>{start.current=null;}} onPointerCancel={()=>{start.current=null;dragged.current=true;}}
     onClick={()=>{if(!dragged.current)onToggle();dragged.current=false;}}>
     <svg className="badge-rings" viewBox="0 0 128 128" shapeRendering="geometricPrecision" aria-hidden="true">
-      <circle className="badge-surface" cx="64" cy="64" r="63"/>
-      {keys.map((key,i)=>{const radius=59-i*5.5,progress=Math.max(0,Math.min(1,value.total[key]/value.goals[key]));return <g key={key} className={`badge-${key}`}>
+      <defs>
+        <radialGradient id={surfaceId} cx="32%" cy="21%" r="85%">
+          <stop offset="0" stopColor="#29444b"/>
+          <stop offset="0.62" stopColor="#192e35"/>
+          <stop offset="1" stopColor="#101e25"/>
+        </radialGradient>
+      </defs>
+      <ellipse className="badge-shadow badge-shadow-outer" cx="64" cy="66" rx="60" ry="60"/>
+      <ellipse className="badge-shadow badge-shadow-inner" cx="64" cy="66" rx="58" ry="58"/>
+      <circle className="badge-halo" cx="64" cy="64" r="59"/>
+      <circle className="badge-surface" cx="64" cy="64" r="56.5" style={{fill:`url(#${surfaceId})`}}/>
+      {keys.map((key,i)=>{const radius=54.5-i*5.5,progress=Math.max(0,Math.min(1,value.total[key]/value.goals[key]));return <g key={key} className={`badge-${key}`}>
         <circle className="badge-track" cx="64" cy="64" r={radius}/>
         {progress > 0 && <circle className="badge-value" cx="64" cy="64" r={radius} pathLength="100" strokeDasharray={progress < 1 ? `${progress*100} 100` : undefined} transform="rotate(-90 64 64)"/>}
       </g>;})}

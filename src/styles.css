@@ -1795,28 +1795,32 @@ body:not(.native)::before { display:none; }
 .notice { background:#253b55;border-color:#4a6585;color:#d8e6f8; }
 .toast { background:#203b4c;border:1px solid #74b9ae;color:#fff;box-shadow:none; }
 .badge-shell { border-radius:50%;overflow:hidden; }
-/* The native ellipse clips the corners. Fill its complete interior so the
-   WebView compositor cannot expose the desktop between it and the SVG edge. */
-body.badge-window.native { background:#142238; }
-/* Surface and rings share one opaque vector layer at the current display DPI. */
+/* Keep the painted circle inset from the native region so its antialiased
+   SVG edge, rather than the binary Windows mask, defines the visible contour. */
+body.badge-window.native { background:transparent; }
 .macro-badge::before { content:none; }
 .badge-rings { display:block; }
-.badge-rings .badge-surface { fill:#142238;stroke:#344760;stroke-width:1; }
-.macro-badge:hover .badge-surface,.macro-badge:focus-visible .badge-surface { stroke:var(--macro-carbs); }
-.macro-badge:focus-visible .badge-surface { stroke-width:2; }
-.badge-rings .badge-track,.badge-rings .badge-value { stroke-width:4; }
-.badge-loading { border-radius:50%;background:#142238;border:1px solid #344760; }
-.badge-track { stroke:#374b65; }
+.badge-rings .badge-shadow { stroke:none;fill:#000; }
+.badge-shadow-outer { opacity:.06; }
+.badge-shadow-inner { opacity:.09; }
+.badge-rings .badge-halo { stroke:#dbae6738;stroke-width:1; }
+.badge-rings .badge-surface { stroke:#dbae6780;stroke-width:1; }
+.macro-badge:hover .badge-surface { stroke:#dbae67bd; }
+.macro-badge:focus-visible .badge-halo { stroke:var(--accent);stroke-width:2; }
+.badge-rings .badge-track,.badge-rings .badge-value { stroke-width:3.3; }
+.badge-loading { width:112px;height:112px;margin:8px;border-radius:50%;background:radial-gradient(at 32% 21%,#29444b,#101e25);border:1px solid #dbae6780; }
+.badge-track { stroke:#b8d4cd24; }
 .badge-value { stroke:currentColor; }
 .badge-protein { color:var(--macro-protein); }
 .badge-carbs { color:var(--macro-carbs); }
 .badge-fat { color:var(--macro-fat); }
 .badge-calories { top:30px; }
-.badge-calories strong { font-size:27px;font-weight:650;letter-spacing:-.7px; }
-.badge-calories>span { color:#e1edfa;font-size:12px; }
-.badge-today { color:#c2d4e9;top:83px;font-size:10px; }
-.badge-macros { top:79px;left:20px;right:20px;background:#203750;border-radius:6px;padding:1px 0; }
-.badge-macros b small { color:#dbe9fa; }
+.badge-calories strong { color:#f6f1e9;font-size:26px;font-weight:600;letter-spacing:-.6px; }
+.badge-calories>span { color:#c9d9d5;font-size:11px; }
+.badge-today { color:#b2c6c0;top:83px;font-size:9px;letter-spacing:1.5px; }
+.badge-macros { top:77px;left:26px;right:26px;background:#10262de8;border:1px solid #dbae6726;border-radius:8px;padding:2px 0; }
+.badge-macros b small { color:#c9d9d5; }
+.badge-macros>span>span { color:#f6f1e9;font-size:11px; }
 .show-details .badge-calories { top:30px; }
 .badge-error { bottom:11px;right:7px; }
 @media(prefers-reduced-motion:reduce) { .favorite-card:hover { transform:none; } }
