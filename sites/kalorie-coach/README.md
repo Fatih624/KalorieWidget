@@ -137,3 +137,17 @@ The portable build runs Vinext directly without a host `timeout` command. The ma
 
 - [vinext Documentation](https://github.com/cloudflare/vinext)
 - [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+
+
+## Lokale Suche in der schmalen Handyansicht
+
+Die Suchleiste liegt in einer eigenständigen Karte direkt unter „Dein Tag“, außerhalb der Tagesübersicht. Beim Scrollen bleibt sie am oberen Rand erreichbar. Vorschläge werden ausschließlich aus den vorhandenen Favoriten auf dem Gerät berechnet, mit Mengen wie „2 Eier“ oder „2 Scheiben Toast“ und begrenzter Tippfehlertoleranz wie „Kaffe“. Kombinationen mit „und“ oder „+“ öffnen eine gemeinsame Prüfung mit Auswahl mehrdeutiger Vorlagen, Einzelmengen und Gesamtnährwerten. Erst nach Bestätigung werden die Lebensmittel einzeln ins Tagebuch übernommen. Foto-, Produkt- und KI-Funktionen bleiben unverändert und getrennt auswählbar; die lokale Suche löst keine Analyseanfrage aus.
+
+Die Erkennungsregeln in lib/local-food-search.ts werden auch vom Windows-Widget verwendet. Browserprüfung mit ausschließlich synthetischen Beispielen bei 390 × 844 und 320 × 640 Pixeln durchgeführt, einschließlich Scrollen, Tippfehler, Mengen, Toastvarianten und Gesamtnährwerten. Die temporäre Prüfseite ist im veröffentlichten Build nicht enthalten.
+
+
+### Mahlzeitenvorlagen auf allen Geräten
+
+„Meine Mahlzeiten“ zeigt gespeicherte Kombinationen mit Gesamtkalorien. Ein Klick übernimmt alle Bestandteile als getrennte Einträge für den ausgewählten Tag. Über „Alle ansehen“ lassen sich Vorlagen suchen, bearbeiten und löschen; eine neue Vorlage kann dort oder direkt aus der lokalen Mahlzeitenprüfung gespeichert werden. „Nur als Vorlage speichern“ erzeugt keinen Tagebucheintrag. Die Mengen und Nährwerte sind unabhängige Kopien der Lebensmittel.
+
+Das optionale Snapshot-Feld `mealTemplates` wird zusammen mit Favoriten, Zielen und Einträgen synchronisiert und lokal sowie im JSON-Export gesichert. Der Drei-Wege-Abgleich führt unabhängige Änderungen zusammen und fragt bei gleichzeitigen Änderungen derselben Vorlage nach. Fehlende Felder älterer Clients werden serverseitig erhalten; eine ausdrücklich leere Liste löscht die Vorlagen. Die bestehende Versionsprüfung schützt auch diesen Übergang vor konkurrierenden Schreibvorgängen. Maximal 500 Vorlagen mit 1–20 Lebensmitteln. Keine KI-API für Erstellung, Auswahl oder Synchronisierung.

@@ -12,3 +12,49 @@
 body{min-width:0}html:has(dialog[open]),body:has(dialog[open]){overflow:hidden}.sheet{overflow-x:hidden}.sheet>header>div{min-width:0}
 @media(max-width:340px){.button-row{flex-wrap:wrap}.button-row>button{flex:1 1 130px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Voice-assisted meal descriptions share the existing capture form. */
+.meal-description{display:flex;flex-direction:column;gap:10px;min-width:0}
+.meal-description textarea{font:inherit;font-size:16px;line-height:1.55;display:block;width:100%;min-width:0;min-height:112px;resize:vertical;padding:12px 13px;border:1px solid #49647e;border-radius:13px;background:#0f1e30;color:#f5f9ff;outline:none}
+.meal-description textarea:focus{border-color:#86e3c8;box-shadow:0 0 0 2px #234a47}
+.meal-description textarea::placeholder{color:#8fa8c0}
+.meal-description textarea[readonly]{border-color:#88edce}
+.speech-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.speech-button{flex-shrink:0;min-width:136px}
+.speech-button.recording{background:#49333e;border-color:#bb7c91;color:#ffe1e9}
+.speech-status{font-size:13px;line-height:1.5;color:#b9cfde;flex:1;min-width:110px}
+.meal-description>.notice{margin:0}
+
+/* Separate mobile search card below the daily summary. */
+.search-card,.mobile-search-slot{display:none}
+@media(max-width:760px){
+.search-card{display:block;padding:17px;border-radius:20px;position:relative;z-index:12}.search-card h2{font-size:17px;margin-bottom:12px}.mobile-search-slot{display:block;min-height:58px;margin:0}
+.mobile-local-search{position:relative;background:#152438;border:1px solid #456079;border-radius:14px;padding:5px;z-index:12}
+.mobile-local-search.is-pinned{position:fixed;top:max(8px,env(safe-area-inset-top));left:16px;right:16px;max-width:728px;margin:auto;box-shadow:0 8px 24px #0007;z-index:20}
+.mobile-local-search>form{display:flex;align-items:center;gap:6px;padding-left:8px}
+.mobile-local-search input{min-width:0;flex:1;background:transparent;border:0;box-shadow:none;padding:10px 0;min-height:46px;font-size:16px}
+.mobile-local-search .icon{flex-shrink:0;color:#a6f4d9}
+.mobile-local-results{position:absolute;top:calc(100% + 6px);left:-1px;right:-1px;max-height:min(340px,45dvh);overflow-y:auto;background:#182d44;border:1px solid #59758f;border-radius:14px;box-shadow:0 10px 28px #0007;overscroll-behavior:contain}
+.mobile-local-results>button{display:flex;flex-direction:column;gap:5px;text-align:left;min-height:56px;width:100%;padding:11px 12px;color:#eef7ff}
+.mobile-local-results>button[aria-selected=true]{background:#2a4861}
+.mobile-local-results strong{font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.mobile-local-results small,.mobile-local-results>p{font-size:12px;color:#bfd4e8;line-height:1.5}
+.mobile-local-results>p{padding:12px;margin:0}
+.mobile-meal-review .notice p{margin-bottom:0}
+}
+
+.meals-card{grid-column:1/-1;padding:24px;min-width:0}
+.meals-card>.muted{margin:12px 0}
+.meal-template-list{display:grid;gap:10px;margin:14px 0}
+.meal-template-row{border:1px solid var(--line);border-radius:14px;padding:6px 12px 12px;min-width:0}
+.meal-template-add{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;width:100%;padding:15px 42px 15px 12px;background:#20354c;border-radius:13px;min-height:70px}
+.meal-template-add strong{overflow-wrap:anywhere;line-height:1.4}
+.meal-template-add small{color:var(--muted);line-height:1.5}
+.meal-template-add>svg{position:absolute;right:12px;top:24px;color:var(--mint)}
+.meal-template-row>.button-row{margin-top:8px;justify-content:space-between}
+.mobile-meal-review label{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+@media(max-width:760px){.meals-card{padding:17px;border-radius:20px}.meals-card h2{font-size:17px}}
+
+.form-stack>label>textarea{font:inherit;font-size:16px;line-height:1.55;width:100%;min-width:0;min-height:100px;resize:vertical;padding:12px 13px;border:1px solid #49647e;border-radius:13px;background:#0f1e30;color:#f5f9ff;outline:none}
+.form-stack>label>textarea:focus{border-color:#86e3c8;box-shadow:0 0 0 2px #234a47}
+.form-stack>label>textarea::placeholder{color:#8fa8c0}

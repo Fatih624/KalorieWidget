@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
 import { actor, ApiError, body, database, getJournal, randomToken, reply, sha } from '../../../../lib/server';
-import { checkedFood, checkedSnapshot } from '../../../../lib/nutrition';
+import { checkedFood, checkedSnapshot, preserveLegacyTemplates } from '../../../../lib/nutrition';
 import { analyse } from '../../../../lib/analysis';
 import { login, logout, saveOpenAIKey, storedOpenAIKey } from '../../../../lib/password-auth';
 export const dynamic = 'force-dynamic';
@@ -21,8 +21,11 @@ async function handle(req: Request, context: Context) {
     const user = await actor(req);
     if (path === 'state' && req.method === 'GET') return reply(await getJournal(user.owner));
     if (path === 'state' && req.method === 'PUT') {
-      const input = await body(req), snapshot = checkedSnapshot(input.snapshot);
+      const input = await body(req);
+      const incoming = checkedSnapshot(input.snapshot);
       if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0) throw new ApiError(400, 'Die Versionsangabe fehlt.');
+      const current = await getJournal(user.owner);
+      const snapshot = preserveLegacyTemplates(incoming, current.snapshot);
       const updated = await db.prepare('UPDATE journals SET body=?,revision=revision+1,updated_at=? WHERE owner=? AND revision=? RETURNING revision').bind(JSON.stringify(snapshot), Date.now(), user.owner, input.expectedRevision).first<{ revision: number }>();
       if (!updated) return reply({ error: 'Auf einem anderen Gerät geändert. Bitte erneut synchronisieren.', conflict: true }, 409);
       return reply({ revision: updated.revision, snapshot });

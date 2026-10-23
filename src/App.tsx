@@ -848,6 +848,7 @@ export default function App() {
           initialQuery={panel.query}
           initialTab={panel.tab}
           favorites={data.favorites}
+          entries={data.entries}
           settings={data.settings}
           onClose={() => setPanel(null)}
           onSelect={(food) => setPanel({ type: "food", food, mode: "add" })}

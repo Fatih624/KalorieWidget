@@ -1,5 +1,13 @@
 # Prüfung der Windows-Version und privaten Site
 
+## Ergänzungen vom 23.10.2026: KI-Angaben und Schnellsuche
+
+- Optionale Gesamtanzahl und Zusatzkommentar bei Windows-KI sowie Foto-/Textanalyse der Handy-App ergänzt. Backend-Grenzen vor einer Anbieteranfrage geprüft; Cache unterscheidet Anzahl und Kommentar. Änderungen an Eingaben verwerfen vorherige Vorschläge.
+- Schnellsuche berücksichtigt Favoriten und Tagebucheinträge aller Tage; Namen werden normalisiert und dedupliziert. Favoriten haben Vorrang, sonst gilt die jüngste Portion.
+- 18 TypeScript-Tests und 11 Rust-Tests bestanden. Handy-TypeScript-Prüfung, Produktionsbuild und gezielte Tests für Anzahl, Kommentar, Cache-Daten und Historie bestanden. Ungültige Anzahl und überlanger Kommentar liefern in der lokalen API HTTP 400.
+- Handy-Oberfläche mit lokalem Testkonto geprüft: Foto und KI zeigen die neuen Felder; ein manuell angelegter Testeintrag vom Vortag wird ohne Favoritenstatus gefunden. Ausschließlich lokale Testdaten, keine kostenpflichtige KI-Anfrage.
+- Windows-Release neu gebaut und auf diesem Heim-PC installiert. Neue KI-Felder nativ sichtbar; bestehende Cloud-Verbindung und heutige 305 kcal nach Update weiterhin vorhanden. Handy-Version 8 unter der bestehenden Adresse erfolgreich veröffentlicht.
+
 ## Handy-App: Ueberarbeitung und Passwortzugang
 
 - Produktionsversion unter der bestehenden Adresse veroeffentlicht. Die Adresse ist ohne GPT-Anmeldung erreichbar; ein anonymer Zugriff auf Tagebuch und Status liefert HTTP 401. Eigene Passwort-Anmeldung in Chrome getestet, einschliesslich Neuladen mit bestehender Sitzung.

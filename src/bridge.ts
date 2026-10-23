@@ -47,10 +47,13 @@ export async function searchProducts(query: string): Promise<Food[]> {
 export async function estimateFood(
   text: string,
   settings: Settings,
+  details: { quantity?: number; comment?: string } = {},
 ): Promise<Food> {
   if (!native) throw new Error("KI ist in der Windows-App verfügbar.");
   return invoke("estimate_food", {
     text,
+    quantity: details.quantity,
+    comment: details.comment,
     provider: settings.provider,
     model: settings.model,
     dailyLimit: settings.dailyLimit,

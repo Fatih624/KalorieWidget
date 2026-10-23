@@ -2,9 +2,11 @@
 export type Macros = { kcal: number; protein: number; carbs: number; fat: number };
 export type Food = { id: string; name: string; emoji: string; grams: number; macros: Macros; source: string };
 export type Entry = Food & { entryId: string; date: string; time: string };
-export type Snapshot = { favorites: Food[]; entries: Entry[]; goals: Macros };
+export type MealTemplate = { id: string; name: string; foods: Food[] };
+// Missing marks legacy clients; an explicit empty list deletes all templates.
+export type Snapshot = { favorites: Food[]; entries: Entry[]; goals: Macros; mealTemplates?: MealTemplate[] };
 export type CloudDocument = { revision: number; snapshot: Snapshot };
-export const initialSnapshot = (): Snapshot => ({ goals: { kcal: 2200, protein: 150, carbs: 250, fat: 67 }, entries: [], favorites: [
+export const initialSnapshot = (): Snapshot => ({ mealTemplates: [], goals: { kcal: 2200, protein: 150, carbs: 250, fat: 67 }, entries: [], favorites: [
   { id: 'skyr', name: 'Skyr natur', emoji: '🥣', grams: 250, macros: { kcal: 158, protein: 27.5, carbs: 10, fat: .5 }, source: 'Standard · Richtwert' },
   { id: 'oats', name: 'Haferflocken', emoji: '🌾', grams: 60, macros: { kcal: 223, protein: 8.1, carbs: 35.2, fat: 4.2 }, source: 'Standard · Richtwert' },
   { id: 'banana', name: 'Banane', emoji: '🍌', grams: 120, macros: { kcal: 107, protein: 1.3, carbs: 24, fat: .4 }, source: 'Standard · Richtwert' }
@@ -16,23 +18,40 @@ export function resizeFood(f: Food, grams: number): Food { if (!Number.isFinite(
 const record = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
 export function checkedMacros(v: unknown, goal = false): Macros { if (!record(v)) throw new Error('Nährwerte fehlen.'); const result = {} as Macros; for (const k of ['kcal', 'protein', 'carbs', 'fat'] as const) { const n = v[k]; if (typeof n !== 'number' || !Number.isFinite(n) || n < (goal ? 1 : 0) || n > (k === 'kcal' ? 50000 : 10000)) throw new Error('Ungültige Nährwerte.'); result[k] = n; } return result; }
 export function checkedFood(v: unknown): Food { if (!record(v) || typeof v.id !== 'string' || !v.id || v.id.length > 200 || typeof v.name !== 'string' || !v.name.trim() || v.name.length > 160 || typeof v.grams !== 'number' || !Number.isFinite(v.grams) || v.grams <= 0 || v.grams > 10000 || typeof v.source !== 'string' || v.source.length > 300 || typeof v.emoji !== 'string' || v.emoji.length > 16) throw new Error('Ungültiges Lebensmittel.'); return { id: v.id, name: v.name.trim(), grams: v.grams, source: v.source, emoji: v.emoji, macros: checkedMacros(v.macros) }; }
+export function checkedMealTemplate(v: unknown): MealTemplate {
+  if (!record(v) || typeof v.id !== 'string' || !v.id || v.id.length > 200 || typeof v.name !== 'string' || !v.name.trim() || v.name.trim().length > 100 || !Array.isArray(v.foods) || !v.foods.length || v.foods.length > 20) throw new Error('Ungültige Mahlzeitenvorlage.');
+  return { id: v.id, name: v.name.trim(), foods: v.foods.map(checkedFood) };
+}
+// Preserve templates when a pre-upgrade client sends only its known fields.
+export function preserveLegacyTemplates(incoming: Snapshot, current: Snapshot): Snapshot {
+  return incoming.mealTemplates === undefined ? { ...incoming, mealTemplates: current.mealTemplates ?? [] } : incoming;
+}
 export function checkedSnapshot(v: unknown): Snapshot {
   if (!record(v) || !Array.isArray(v.favorites) || v.favorites.length > 5000 || !Array.isArray(v.entries) || v.entries.length > 50000) throw new Error('Ungültiges Tagebuch.');
   const favorites = v.favorites.map(checkedFood);
   const entries = v.entries.map(e => { const f = checkedFood(e); if (!record(e) || typeof e.entryId !== 'string' || !e.entryId || e.entryId.length > 100 || typeof e.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(e.date) || localDay(new Date(e.date + 'T12:00:00')) !== e.date || typeof e.time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(e.time)) throw new Error('Ungültiger Tagebucheintrag.'); return { ...f, entryId: e.entryId, date: e.date, time: e.time }; });
   if (new Set(favorites.map(f => f.id)).size !== favorites.length || new Set(entries.map(e => e.entryId)).size !== entries.length) throw new Error('Doppelte Einträge in den Daten.');
-  return { favorites, entries, goals: checkedMacros(v.goals, true) };
+  let mealTemplates: MealTemplate[] | undefined;
+  if (v.mealTemplates !== undefined) {
+    if (!Array.isArray(v.mealTemplates) || v.mealTemplates.length > 500) throw new Error('Ungültige Mahlzeitenvorlagen.');
+    mealTemplates = v.mealTemplates.map(checkedMealTemplate);
+    if (new Set(mealTemplates.map(t => t.id)).size !== mealTemplates.length) throw new Error('Doppelte Mahlzeitenvorlagen.');
+  }
+  return { favorites, entries, goals: checkedMacros(v.goals, true), ...(mealTemplates === undefined ? {} : { mealTemplates }) };
 }
 export function canonical(v: unknown): string { if (Array.isArray(v)) return '[' + v.map(canonical).join(',') + ']'; if (record(v)) return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canonical(v[k])).join(',') + '}'; return JSON.stringify(v) ?? 'undefined'; }
-export type Conflict = { collection: 'favorites' | 'entries' | 'goals'; id: string; label: string; local: Food | Entry | number | null; remote: Food | Entry | number | null };
+export type Conflict = { collection: 'favorites' | 'entries' | 'mealTemplates' | 'goals'; id: string; label: string; local: Food | Entry | MealTemplate | number | null; remote: Food | Entry | MealTemplate | number | null };
 export function mergeSnapshots(base: Snapshot, local: Snapshot, remote: Snapshot): { snapshot: Snapshot; conflicts: Conflict[] } {
   const conflicts: Conflict[] = [];
   const resolve = (b: unknown, l: unknown, r: unknown) => canonical(l) === canonical(b) ? r : canonical(r) === canonical(b) || canonical(l) === canonical(r) ? l : undefined;
-  function mergeList<T extends Food>(collection: 'favorites' | 'entries', b: T[], l: T[], r: T[], key: (v: T) => string): T[] {
+  function mergeList<T extends { name: string } & (Food | Entry | MealTemplate)>(collection: 'favorites' | 'entries' | 'mealTemplates', b: T[], l: T[], r: T[], key: (v: T) => string): T[] {
     const bm = new Map(b.map(x => [key(x), x])), lm = new Map(l.map(x => [key(x), x])), rm = new Map(r.map(x => [key(x), x])); const result: T[] = [];
     for (const id of new Set([...bm.keys(), ...lm.keys(), ...rm.keys()])) { const bv = bm.get(id) ?? null, lv = lm.get(id) ?? null, rv = rm.get(id) ?? null; const v = resolve(bv, lv, rv); if (v === undefined) { conflicts.push({ collection, id, label: lv?.name || rv?.name || id, local: lv, remote: rv }); if (rv) result.push(rv); } else if (v !== null) result.push(v as T); } return result;
   }
   const goals = { ...remote.goals }; for (const id of ['kcal', 'protein', 'carbs', 'fat'] as const) { const value = resolve(base.goals[id], local.goals[id], remote.goals[id]); if (value === undefined) conflicts.push({ collection: 'goals', id, label: `Tagesziel ${id}`, local: local.goals[id], remote: remote.goals[id] }); else goals[id] = value as number; }
-  return { snapshot: { favorites: mergeList('favorites', base.favorites, local.favorites, remote.favorites, f => f.id), entries: mergeList('entries', base.entries, local.entries, remote.entries, e => e.entryId), goals }, conflicts };
+  const templatesBase = base.mealTemplates ?? [];
+  const templatesLocal = local.mealTemplates ?? base.mealTemplates ?? remote.mealTemplates ?? [];
+  const templatesRemote = remote.mealTemplates ?? base.mealTemplates ?? local.mealTemplates ?? [];
+  return { snapshot: { mealTemplates: mergeList('mealTemplates', templatesBase, templatesLocal, templatesRemote, t => t.id), favorites: mergeList('favorites', base.favorites, local.favorites, remote.favorites, f => f.id), entries: mergeList('entries', base.entries, local.entries, remote.entries, e => e.entryId), goals }, conflicts };
 }
-export function resolveConflicts(snapshot: Snapshot, conflicts: Conflict[], choice: 'local' | 'remote'): Snapshot { const result = structuredClone(snapshot); for (const c of conflicts) { const v = c[choice]; if (c.collection === 'goals') result.goals[c.id as keyof Macros] = v as number; else if (c.collection === 'entries') { result.entries = result.entries.filter(e => e.entryId !== c.id); if (v) result.entries.push(v as Entry); } else { result.favorites = result.favorites.filter(f => f.id !== c.id); if (v) result.favorites.push(v as Food); } } return result; }
+export function resolveConflicts(snapshot: Snapshot, conflicts: Conflict[], choice: 'local' | 'remote'): Snapshot { const result = structuredClone(snapshot); for (const c of conflicts) { const v = c[choice]; if (c.collection === 'goals') result.goals[c.id as keyof Macros] = v as number; else if (c.collection === 'mealTemplates') { result.mealTemplates = (result.mealTemplates ?? []).filter(t => t.id !== c.id); if (v) result.mealTemplates.push(v as MealTemplate); } else if (c.collection === 'entries') { result.entries = result.entries.filter(e => e.entryId !== c.id); if (v) result.entries.push(v as Entry); } else { result.favorites = result.favorites.filter(f => f.id !== c.id); if (v) result.favorites.push(v as Food); } } return result; }

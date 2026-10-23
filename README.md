@@ -27,6 +27,10 @@ Die Startfavoriten und Tagesziele sind bearbeitbare Richtwerte, keine aus persö
 
 ## KI und Sprache
 
+Bei „Mit KI“ können zusätzlich eine **Anzahl insgesamt** und ein **Zusatzkommentar** angegeben werden, zum Beispiel Burger, Anzahl 2, „vegane Patties“. Die Anzahl ersetzt eine bereits beschriebene Stückzahl. In der Handy-App gelten diese Angaben auch für Fotos: Ein fotografierter Burger kann als Grundlage für zwei gleichartige Burger dienen. Die gesamte Portion und ihre Nährwerte vor dem Speichern prüfen.
+
+Die **Schnellsuche** berücksichtigt Favoriten und bereits erfasste Lebensmittel aus allen Tagen, unabhängig von der Erfassungsmethode. Gleiche Namen erscheinen nur einmal. Favoriten behalten ihre gespeicherte Portion; für andere Lebensmittel wird die zuletzt erfasste Portion verwendet.
+
 Unter **Einstellungen → KI & Sprache** einen Anbieter auswählen, eine unterstützte Modell-ID eintragen und den eigenen API-Schlüssel mit „Schlüssel speichern“ hinterlegen. Das Speichern des Schlüssels gilt sofort; Modell, Limits und Sprache werden mit „Einstellungen übernehmen“ gespeichert.
 
 Unterstützt werden OpenAI, Groq und OpenRouter über Chat Completions mit JSON-Modus. Die Modell-ID ist frei editierbar. Voreinstellungen: `gpt-4.1-mini`, `llama-3.3-70b-versatile`, `openai/gpt-4.1-mini`. Zugang, Verfügbarkeit und Abrechnung hängen vom jeweiligen Anbieter ab; diese Auswahl ist keine Garantie für das aktuell günstigste Modell.

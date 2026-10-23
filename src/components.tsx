@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import {
   X,
@@ -24,7 +24,8 @@ import {
   portion,
   validFood,
 } from "./domain";
-import type { AppData, Food, Settings } from "./domain";
+import type { AppData, Entry, Food, Settings } from "./domain";
+import { quickSearchFoods } from "./quickSearch";
 import {
   estimateFood,
   exportData,
@@ -306,6 +307,7 @@ export function FoodSearch({
   initialQuery,
   initialTab = "local",
   favorites,
+  entries,
   settings,
   onSelect,
   onManual,
@@ -315,6 +317,7 @@ export function FoodSearch({
   initialQuery: string;
   initialTab?: "local" | "ai";
   favorites: Food[];
+  entries: Entry[];
   settings: Settings;
   onSelect: (food: Food) => void;
   onManual: () => void;
@@ -322,12 +325,15 @@ export function FoodSearch({
   onSettings: () => void;
 }) {
   const [query, setQuery] = useState(initialQuery);
+  const [quantity, setQuantity] = useState("");
+  const [comment, setComment] = useState("");
   const [tab, setTab] = useState<"local" | "online" | "ai">(initialTab);
   const [results, setResults] = useState<Food[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [searched, setSearched] = useState(false);
   const requestId = useRef(0);
+  const localFoods = useMemo(() => quickSearchFoods(favorites, entries), [favorites, entries]);
   useEffect(
     () => () => {
       requestId.current++;
@@ -336,9 +342,15 @@ export function FoodSearch({
   );
   let local: Food[] = [];
   try {
-    local = findLocal(query, favorites);
+    local = findLocal(query, localFoods);
   } catch {
     /* Invalid portion is shown as no local match. */
+  }
+  function clearResults() {
+    requestId.current++;
+    setResults([]);
+    setError("");
+    setSearched(false);
   }
   async function search(e: FormEvent) {
     e.preventDefault();
@@ -354,7 +366,10 @@ export function FoodSearch({
       const foods =
         tab === "online"
           ? await searchProducts(query)
-          : [await estimateFood(query, settings)];
+          : [await estimateFood(query, settings, {
+              quantity: quantity.trim() ? Number(quantity) : undefined,
+              comment: comment.trim() || undefined,
+            })];
       if (!foods.every(validFood))
         throw new Error(
           "Die gelieferten Nährwerte sind unvollständig. Bitte manuell eintragen.",
@@ -379,7 +394,7 @@ export function FoodSearch({
       <div className="tabs" role="tablist" aria-label="Quelle">
         {(
           [
-            ["local", "Favoriten", Star],
+            ["local", "Schnellsuche", Star],
             ["online", "Lebensmittel", Search],
             ["ai", "Mit KI", Sparkles],
           ] as const
@@ -403,13 +418,18 @@ export function FoodSearch({
           </button>
         ))}
       </div>
-      <form onSubmit={search} className="search-form">
+      <form onSubmit={search} className="form-stack">
+        <div className="search-form">
         <input
           autoFocus
           aria-label="Essen suchen oder beschreiben"
           maxLength={tab === "ai" ? 1600 : 120}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          disabled={busy}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            clearResults();
+          }}
           placeholder={
             tab === "ai"
               ? "z. B. 250 g Skyr mit einer Banane"
@@ -430,10 +450,48 @@ export function FoodSearch({
             <ArrowRight size={18} />
           )}
         </button>
+        </div>
+        {tab === "ai" && (
+          <>
+            <label>
+              Anzahl insgesamt · optional
+              <input
+                type="number"
+                min="0.01"
+                max="100"
+                step="any"
+                value={quantity}
+                disabled={busy}
+                placeholder="z. B. 2"
+                onChange={(e) => {
+                  setQuantity(e.target.value);
+                  clearResults();
+                }}
+              />
+            </label>
+            <p className="muted small">
+              Gesamtzahl der gegessenen Stücke oder Portionen. Ersetzt eine
+              bereits genannte Anzahl und wird nicht nochmals multipliziert.
+            </p>
+            <label>
+              Zusatzkommentar · optional
+              <input
+                value={comment}
+                maxLength={600}
+                disabled={busy}
+                placeholder="z. B. mit veganen Patties, ohne Käse"
+                onChange={(e) => {
+                  setComment(e.target.value);
+                  clearResults();
+                }}
+              />
+            </label>
+          </>
+        )}
       </form>
       {tab === "ai" && (
         <div className="notice">
-          Nur deine Beschreibung wird an{" "}
+          Deine Beschreibung, Anzahl und dein Zusatzkommentar werden an{" "}
           {settings.provider === "openai"
             ? "OpenAI"
             : settings.provider === "groq"
@@ -477,7 +535,7 @@ export function FoodSearch({
         {!foods.length && !busy && (tab === "local" || searched) && (
           <div className="empty small">
             {tab === "local"
-              ? "Kein passender Favorit. Suche online oder lege dein Essen selbst an."
+              ? "Kein passendes Lebensmittel in Favoriten oder Tagebuch. Suche online oder lege dein Essen selbst an."
               : "Keine vollständigen Nährwerte gefunden. Du kannst sie selbst eintragen."}
           </div>
         )}
