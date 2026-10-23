@@ -22,3 +22,5 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm test -- src/resilientSearch.test.ts src/productSearch.test.ts
       - run: npx tsc -b --pretty false
+      - run: npm ci --prefix sites/kalorie-coach --no-audit --no-fund
+      - run: ./sites/kalorie-coach/node_modules/.bin/tsc --project sites/kalorie-coach/tsconfig.json --noEmit --pretty false
