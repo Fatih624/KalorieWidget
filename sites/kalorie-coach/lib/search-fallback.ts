@@ -1,5 +1,5 @@
 import { FOOD_PRESETS } from './food-presets';
-import { findLocal } from './local-food-search';
+import { localProductMatches } from './local-product-matches';
 import { checkedFood, type Food } from './nutrition';
 import { ProductSearchError, searchProducts } from './product-search';
 
@@ -20,18 +20,6 @@ type SearchOptions = {
 const barcodePattern = /^\d{8,14}$/;
 const record = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
-
-// Barcode search must never substitute a vaguely similar food: only verified identifiers.
-export function localProductMatches(query: string, foods: Food[]): Food[] {
-  if (barcodePattern.test(query)) {
-    return foods.filter(food =>
-      food.id === `off-${query}` ||
-      food.id === `lidl-${query}` ||
-      food.source.includes(`· ${query}`) ||
-      food.source.endsWith(`· ${query}`)).slice(0, 12);
-  }
-  return findLocal(query, foods).slice(0, 12);
-}
 
 function fromUsda(payload: unknown): Food[] {
   if (!record(payload) || !Array.isArray(payload.foods)) return [];
