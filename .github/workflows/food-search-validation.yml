@@ -24,3 +24,4 @@ jobs:
       - run: npx tsc -b --pretty false
       - run: npm ci --prefix sites/kalorie-coach --no-audit --no-fund
       - run: ./sites/kalorie-coach/node_modules/.bin/tsc --project sites/kalorie-coach/tsconfig.json --noEmit --pretty false
+      - run: npm run build --prefix sites/kalorie-coach
