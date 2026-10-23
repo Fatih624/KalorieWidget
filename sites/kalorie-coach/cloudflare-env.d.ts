@@ -1,6 +1,7 @@
 declare namespace Cloudflare {
   interface Env {
     OPENAI_API_KEY?: string;
+    USDA_API_KEY?: string;
     APP_PASSWORD_HASH?: string;
     APP_PASSWORD_SALT?: string;
     APP_OWNER_ID?: string;
