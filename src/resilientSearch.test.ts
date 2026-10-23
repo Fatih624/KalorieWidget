@@ -35,7 +35,7 @@ describe('stufenweiser Produkt-Fallback', () => {
   });
 
   it('aktiviert USDA nur bei einem serverseitigen Schlüssel und echten Textsuchen', async () => {
-    const mock = vi.fn(async () => Response.json({ foods: [usdaProduct] }));
+    const mock = vi.fn(async (_url: RequestInfo | URL, _init?: RequestInit) => Response.json({ foods: [usdaProduct] }));
     const search = createResilientSearch({ primary: unavailable, usdaApiKey: 'test-secret', fetch: mock });
     const result = await search('bread roll');
     expect(result).toMatchObject({ source: 'usda', degraded: true });
