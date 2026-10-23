@@ -1,4 +1,5 @@
 import { findLocal as findSharedFoods } from '../sites/kalorie-coach/lib/local-food-search';
+import { checkedFavoriteLearning } from '../sites/kalorie-coach/lib/favorite-learning';
 
 export type Macros = {
   kcal: number;
@@ -189,26 +190,14 @@ export function parseData(input: unknown): AppData {
   )
     throw new Error("Ungültige Tagebucheinträge in der Sicherung.");
   const s = input.settings;
-  const learning = input.favoriteLearning;
-  if (learning !== undefined && (
-    !object(learning) ||
-    !Array.isArray(learning.dismissed) ||
-    !Array.isArray(learning.automatic) ||
-    learning.dismissed.length > 100000 ||
-    learning.automatic.length > 5000 ||
-    !learning.dismissed.every((key: unknown) => typeof key === "string" && key.length > 0 && key.length <= 3000) ||
-    !learning.automatic.every((id: unknown) => typeof id === "string" && id.length < 200)
-  )) throw new Error("Ungültige Favoriten-Lerndaten in der Sicherung.");
+  const learning = input.favoriteLearning === undefined ? undefined : checkedFavoriteLearning(input.favoriteLearning);
   if (!validMacros(s.goals, true)) throw new Error("Ungültige Tagesziele.");
   const fallback = defaults().settings;
   return {
     version: 1,
     favorites: input.favorites,
     entries: input.entries,
-    ...(learning === undefined ? {} : { favoriteLearning: {
-      dismissed: [...(learning as { dismissed: string[] }).dismissed],
-      automatic: [...(learning as { automatic: string[] }).automatic],
-    } }),
+    ...(learning === undefined ? {} : { favoriteLearning: learning }),
     settings: {
       goals: s.goals,
       collapsed: s.collapsed === true,

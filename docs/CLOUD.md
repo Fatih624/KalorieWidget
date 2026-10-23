@@ -15,6 +15,9 @@ Der Windows-Rechner benötigt zusätzlich den privaten Hosting-Zugang. Dieser wi
 
 ## Verhalten
 
+- Einzelne Tagebucheinträge oder die gesamte angezeigte Tagesliste lassen sich erneut hinzufügen. Portionen und Nährwerte bleiben gleich; die Kopien erhalten neue Kennungen und die aktuelle Uhrzeit. „Rückgängig“ entfernt zehn Sekunden lang ausschließlich diese Kopien.
+- Handy und Desktop verwenden denselben Favoritenalgorithmus: mindestens drei verschiedene Tage innerhalb der letzten 30 Tage, höchstens zehn automatische Favoriten. Favoriten werden synchronisiert; die Kennzeichnung und Merkliste entfernter Favoriten bleiben lokal pro Benutzer und Gerät.
+- Die Produktsuche nutzt Open Food Facts. Anbieterfehler, Anfragebegrenzung, Timeout und ungültige Antworten werden getrennt gemeldet. Erfolgreiche Suchergebnisse werden im aktiven Serverprozess begrenzt für fünf Minuten zwischengespeichert; Fehler werden niemals als leere Treffer behandelt. Die externe Verfügbarkeit kann die App nicht garantieren.
 - Automatischer Abgleich ungefähr alle 20 Sekunden, nach Änderungen und beim Zurückkehren ins Widget. Änderungen werden zusätzlich lokal gespeichert.
 - Neue Einträge beider Geräte bleiben erhalten. Gleichzeitige Änderungen an demselben Eintrag, Favoriten oder Ziel erfordern eine Auswahl. Der Server verhindert das Überschreiben einer inzwischen geänderten Version.
 - Offline können bereits geöffnete Ansichten weiterbearbeitet werden. Beim vollständigen Öffnen ohne Netzwerk zeigt die Handy-App eine Offline-Seite. Private Seiten, Fotos und API-Antworten werden vom Service Worker nicht zwischengespeichert.

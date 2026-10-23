@@ -58,3 +58,22 @@ body{min-width:0}html:has(dialog[open]),body:has(dialog[open]){overflow:hidden}.
 .form-stack>label>textarea{font:inherit;font-size:16px;line-height:1.55;width:100%;min-width:0;min-height:100px;resize:vertical;padding:12px 13px;border:1px solid #49647e;border-radius:13px;background:#0f1e30;color:#f5f9ff;outline:none}
 .form-stack>label>textarea:focus{border-color:#86e3c8;box-shadow:0 0 0 2px #234a47}
 .form-stack>label>textarea::placeholder{color:#8fa8c0}
+
+/* Diary repetition uses the same portions; actions stay comfortably tappable. */
+.diary-repeat-all{gap:8px;margin-top:8px;text-align:left}
+.automatic-favorite{display:inline-flex;align-self:flex-start;padding:3px 7px;border:1px solid #4b8175;border-radius:7px;background:#23443f;color:#afeedb;font-size:10px;line-height:1.4}
+.favorite-learning-note{margin-top:10px}
+.toast:has(.toast-undo){padding:7px 10px 7px 14px;flex-wrap:wrap;justify-content:center}
+.toast-undo{min-height:44px;min-width:88px;padding:10px 8px;color:#c5ffe9;text-decoration:underline;text-underline-offset:3px;font-weight:650;border-radius:9px}
+.toast-undo:hover{background:#315c51}
+@media(max-width:760px){
+ .date-nav .icon,.entry>.icon,.favorite-row .icon{width:44px;min-width:44px;height:44px}
+ .sync-status{min-height:44px}
+ .entry{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:4px 8px}
+ .entry-title{grid-column:2;min-height:44px;justify-content:center}
+ .entry>span:not(.food-mark){grid-column:3;grid-row:1}
+ .entry>.entry-repeat{grid-column:2;grid-row:2;justify-self:end}
+ .entry>.icon:last-child{grid-column:3;grid-row:2}
+ .diary-repeat-all{width:100%;min-height:44px;font-size:13px}
+ .toast:has(.toast-undo){gap:4px 8px}
+}
