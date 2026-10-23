@@ -2,7 +2,9 @@ import { env } from 'cloudflare:workers';
 import { actor, ApiError, body, database, getJournal, randomToken, reply, sha } from '../../../../lib/server';
 import { checkedSnapshot, preserveLegacyTemplates } from '../../../../lib/nutrition';
 import { analyse } from '../../../../lib/analysis';
-import { ProductSearchError, searchProducts } from '../../../../lib/product-search';
+import { ProductSearchError } from '../../../../lib/product-search';
+import { createResilientSearch } from '../../../../lib/search-fallback';
+const resilientSearch = createResilientSearch({ usdaApiKey: env.USDA_API_KEY });
 import { login, logout, saveOpenAIKey, storedOpenAIKey } from '../../../../lib/password-auth';
 export const dynamic = 'force-dynamic';
 type Context = { params: Promise<{ path: string[] }> };
@@ -42,7 +44,7 @@ async function handle(req: Request, context: Context) {
       const query = new URL(req.url).searchParams.get('q')?.trim() || ''; if (query.length < 2 || query.length > 120) throw new ApiError(400, 'Bitte 2 bis 120 Zeichen suchen.');
       const slot = `search-${Math.floor(Date.now() / 7000)}`; const claim = await db.prepare('INSERT OR IGNORE INTO quotas(owner,day,calls) VALUES(?,?,1) RETURNING calls').bind(user.owner, slot).first();
       if (!claim) throw new ApiError(429, 'Bitte vor der nächsten Produktsuche kurz warten (7 Sekunden).');
-      return reply({ foods: await searchProducts(query) });
+      return reply(await resilientSearch(query));
     }
     throw new ApiError(404, 'Diese Funktion ist nicht verfügbar.');
   } catch (error) { if (error instanceof ProductSearchError) { const response = reply({ error: error.message, code: error.code }, error.status); if (error.retryAfter) response.headers.set('retry-after', String(error.retryAfter)); return response; } if (error instanceof ApiError) return reply({ error: error.message }, error.status); if (error instanceof Error && /Ungültig|Doppelte|Nährwert/.test(error.message)) return reply({ error: error.message }, 400); return reply({ error: 'Die Anfrage konnte nicht abgeschlossen werden. Deine lokalen Einträge bleiben erhalten.' }, 500); }
