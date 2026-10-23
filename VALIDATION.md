@@ -131,3 +131,13 @@ Der Import ist ein validierter Kalorie-Widget-Sicherungsimport. Ein persönliche
 - Der Kreis ist innerhalb seiner sichtbaren Vektorkontur geschlossen; die aeussere, unbemalte Fensterflaeche ist absichtlich transparent. Keine Bitmap oder Filter-Weichzeichnung der Ringe verwendet. Weitere DPI-Stufen und physische Monitore nicht erneut getestet.
 - Version 0.3.1 ueber das aktuelle NSIS-Paket installiert (Exitcode 0); Windows-Installation meldet DisplayVersion 0.3.1 und wurde neu gestartet. Alle 17 Tagebucheintraege stimmen mit der Sicherung vor der Ueberarbeitung ueberein.
 - Sicherung: %LOCALAPPDATA%/KalorieWidget-Backups/before-soft-theme-20261023-151235. Aktuelle portable EXE und Installer liegen unter output/release.
+
+## Transparenter Kreisrand - Version 0.3.2
+
+- Nutzerbild und erneute native Pruefung zeigten weiterhin einen hellen Streifen im unbemalten Aussenrand des Kreisfensters. Die vorherige Sichtpruefung von 0.3.1 hatte diesen Bereich nicht ausreichend erfasst.
+- Die zusaetzliche Win32-Kreisregion (SetWindowRgn) wird fuer das Badge nicht mehr gesetzt. Der Kreis verwendet ausschliesslich die Alpha-Transparenz des Renderers. Native Panelregion, SVG-Grafik, Datenlogik und Fensterpositionierung bleiben unveraendert.
+- Direkter Vergleich mit identischen Frontend-Assets: Mit Win32-Kreisregion war der Streifen sichtbar, ohne sie bei geschlossenem und geoeffnetem Panel nicht mehr. Der native HTML-title erzeugte zusaetzlich einen separaten hellen Tooltip; er wurde durch eine ARIA-Beschreibung ersetzt. Makro-Detailanzeige und Bedienhinweise in den Einstellungen bleiben erhalten.
+- Finaler nativer Release-Build und NSIS-Paket erfolgreich (3m08s); TypeScript-/Vite-Build und alle 22 Frontend-Tests bestanden.
+- Finale native Sichtpruefung: geschlossener Kreis, Makroanzeige nach Hover einschliesslich vier Sekunden Wartezeit, Oeffnen und erneutes Einklappen. Kein heller Randstreifen und kein separates weisses Tooltip-Fenster sichtbar. Panel weiterhin bedienbar, 565 kcal mit sechs heutigen Eintraegen.
+- Version 0.3.2 installiert (Exitcode 0), DisplayVersion in Windows bestaetigt und Installation neu gestartet. Alle 17 Tagebucheintraege gegen die Sicherung verglichen: unveraendert. Sicherung unter %LOCALAPPDATA%/KalorieWidget-Backups/before-alpha-fix-20261023-154636.
+- Geprueft am vorhandenen Arbeitsplatz bei aktueller DPI-Einstellung; keine Aussage zu allen Monitor-/Grafiktreiber-Kombinationen.

@@ -49,14 +49,17 @@ pub fn widget_dock(app:tauri::AppHandle)->Result<bool> {
 }
 
 fn shape(window:&tauri::WebviewWindow) {
+    // Let WebView2 composite the badge's per-pixel alpha. A binary window
+    // region on this transparent surface can retain stale desktop pixels in
+    // the unpainted margin around its SVG artwork.
+    if window.label()=="badge" {return;}
     #[cfg(windows)] {
-        use windows_sys::Win32::Graphics::Gdi::{CreateEllipticRgn,CreateRoundRectRgn,SetWindowRgn,DeleteObject};
+        use windows_sys::Win32::Graphics::Gdi::{CreateRoundRectRgn,SetWindowRgn,DeleteObject};
         if let (Ok(hwnd),Ok(size),Ok(scale))=(window.hwnd(),window.inner_size(),window.scale_factor()) {
             // The native region encloses the CSS edge. It never clips its
             // antialiased border; it only removes empty, clickable corners.
             unsafe {
-                let r=if window.label()=="badge" {CreateEllipticRgn(0,0,size.width as i32,size.height as i32)}
-                else {CreateRoundRectRgn(0,0,size.width as i32+1,size.height as i32+1,(40.0*scale).round() as i32,(40.0*scale).round() as i32)};
+                let r=CreateRoundRectRgn(0,0,size.width as i32+1,size.height as i32+1,(40.0*scale).round() as i32,(40.0*scale).round() as i32);
                 if !r.is_null()&&SetWindowRgn(hwnd.0,r,1)==0 {DeleteObject(r);}
             }
         }

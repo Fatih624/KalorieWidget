@@ -1795,8 +1795,8 @@ body:not(.native)::before { display:none; }
 .notice { background:#253b55;border-color:#4a6585;color:#d8e6f8; }
 .toast { background:#203b4c;border:1px solid #74b9ae;color:#fff;box-shadow:none; }
 .badge-shell { border-radius:50%;overflow:hidden; }
-/* Keep the painted circle inset from the native region so its antialiased
-   SVG edge, rather than the binary Windows mask, defines the visible contour. */
+/* Leave space for the SVG's antialiased contour and shadows inside the
+   transparent window; the badge does not use a binary Windows region. */
 body.badge-window.native { background:transparent; }
 .macro-badge::before { content:none; }
 .badge-rings { display:block; }

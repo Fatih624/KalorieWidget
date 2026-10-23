@@ -15,7 +15,7 @@ export function MacroBadge({ value, onToggle, standalone = false }: { value: Bad
   const labels = {protein:'P',carbs:'KH',fat:'F'};
   return <button className={`macro-badge ${details?'show-details':''} ${value.open?'panel-open':''} ${value.reducedMotion?'reduce-motion':''}`} aria-expanded={value.open}
     aria-label={`Kalorie-Widget ${value.open?'einklappen':'öffnen'}. Heute ${number(value.total.kcal)} kcal. Protein ${number(value.total.protein,1)} g, Kohlenhydrate ${number(value.total.carbs,1)} g, Fett ${number(value.total.fat,1)} g.`}
-    title="P: Protein · KH: Kohlenhydrate · F: Fett. Klicken zum Öffnen, Ziehen zum Verschieben."
+    aria-description="Klicken zum Öffnen, Ziehen zum Verschieben."
     onMouseEnter={()=>setDetails(true)} onMouseLeave={()=>setDetails(false)} onFocus={()=>setDetails(true)} onBlur={()=>setDetails(false)}
     onPointerDown={e=>{if(e.button!==0)return;start.current={x:e.clientX,y:e.clientY};dragged.current=false;e.currentTarget.setPointerCapture(e.pointerId);}}
     onPointerMove={e=>{if(!start.current || !(e.buttons&1))return;if(Math.abs(e.clientX-start.current.x)+Math.abs(e.clientY-start.current.y)>6){start.current=null;dragged.current=true;if(standalone)void dragWindow().catch(()=>{});}}}

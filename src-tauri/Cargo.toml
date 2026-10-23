@@ -1,6 +1,6 @@
 [package]
 name = "kalorie-widget"
-version = "0.3.1"
+version = "0.3.2"
 description = "Dein Kalorien- und Makro-Widget"
 authors = ["Fatih624"]
 edition = "2021"

@@ -1,13 +1,13 @@
 # Kalorie Widget
 
-Ein lokales Windows-Widget für Kalorien, Makros und schnelle Mahlzeiteneinträge. Version 0.3.1 verwendet weiche Petrolverläufe, dezente Goldkonturen, klare Schrift und farbige Makroanzeigen im Stil von NamazFlow. Ein kleines Kreissymbol bleibt auf dem Desktop; das abgerundete Panel lässt sich aufklappen.
+Ein lokales Windows-Widget für Kalorien, Makros und schnelle Mahlzeiteneinträge. Version 0.3.2 verwendet weiche Petrolverläufe, dezente Goldkonturen, klare Schrift und farbige Makroanzeigen im Stil von NamazFlow. Ein kleines Kreissymbol bleibt auf dem Desktop; das abgerundete Panel lässt sich aufklappen.
 
 ## Starten
 
 Die für dich bereitgelegten Dateien liegen unter `output/release/Kalorie-Widget.exe` und `output/release/Kalorie-Widget-Setup.exe`. Die ursprünglichen Build-Ergebnisse liegen unter `src-tauri/target/release/`:
 
 - `kalorie-widget.exe`: direkt starten, ohne Installation.
-- `bundle/nsis/Kalorie Widget_0.3.1_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
+- `bundle/nsis/Kalorie Widget_0.3.2_x64-setup.exe`: deutschsprachige Installation für den aktuellen Windows-Benutzer.
 
 Benötigt Windows 10/11 (x64) mit Microsoft Edge WebView2. Der Installer kann die WebView2-Laufzeit bei Bedarf beziehen. Das Paket ist lokal erstellt und nicht mit einem Herausgeberzertifikat signiert.
 
@@ -70,7 +70,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 npm run tauri build   # Oberfläche, Windows-EXE und Installer
 ```
 
-Alternativ lässt sich die Tauri-CLI unter Windows direkt mit `node node_modules/@tauri-apps/cli/tauri.js build` aufrufen. Die Oberfläche verwendet React und TypeScript; Dateispeicherung, Schlüsselspeicher, API-Anfragen und die nativen Kreis- und Panelregionen liegen in Rust. Hauptfenster und Badge sind getrennte WebViews; ausschließlich das Hauptfenster schreibt und synchronisiert Daten. Netzwerkzugriffe erfolgen im nativen Backend über HTTPS an festgelegte Anbieter. Die Grundflächen sind deckend und verwenden Farbverläufe, ohne Acrylic oder Hintergrundunschärfe. Der SVG-Kreis liegt innerhalb der nativen Fensterregion, damit seine geglättete Kante und dezente Schatten nicht am Windows-Rand abgeschnitten werden. CSS-Bewegungen beachten die Systemeinstellung „Bewegung reduzieren“ und die zusätzliche Widget-Einstellung.
+Alternativ lässt sich die Tauri-CLI unter Windows direkt mit `node node_modules/@tauri-apps/cli/tauri.js build` aufrufen. Die Oberfläche verwendet React und TypeScript; Dateispeicherung, Schlüsselspeicher, API-Anfragen, Fensterpositionierung und die native Panelregion liegen in Rust. Hauptfenster und Badge sind getrennte WebViews; ausschließlich das Hauptfenster schreibt und synchronisiert Daten. Netzwerkzugriffe erfolgen im nativen Backend über HTTPS an festgelegte Anbieter. Die Grundflächen sind deckend und verwenden Farbverläufe, ohne Acrylic oder Hintergrundunschärfe. Das Kreisfenster verwendet die Alpha-Transparenz von WebView2 ohne zusätzliche Windows-Fensterregion. SVG-Kontur und Schatten liegen mit Abstand innerhalb des Fensters. Der Bedienhinweis ist als zugängliche Beschreibung hinterlegt; ein separates natives Tooltip-Fenster wird am Kreis nicht geöffnet. CSS-Bewegungen beachten die Systemeinstellung „Bewegung reduzieren“ und die zusätzliche Widget-Einstellung.
 
 ## Datenquelle und Dokumentation
 
