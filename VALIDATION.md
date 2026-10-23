@@ -88,3 +88,34 @@ Die nativen Testeinträge wurden entfernt. Das Windows-Tagebuch startet für die
 - Eine tatsächliche Steigerung der Wiederkehrrate. Schnelle Favoriten, sanfte Rückmeldungen, Wochenübersicht und optionaler Tagesimpuls sind dafür umgesetzt; es gibt keine Telemetrie oder behaupteten Messwerte.
 
 Der Import ist ein validierter Kalorie-Widget-Sicherungsimport. Ein persönlicher „Kalorien Coach“-Chat-Export muss gesondert bereitgestellt und ausgewertet werden.
+
+
+## Kreis-Rendering - 23.10.2026
+
+- Die Kreisflaeche und Makroringe werden gemeinsam als SVG gezeichnet. Die Flaeche ist deckend und entspricht dem Panel (#142238); die separate CSS-Pseudoflaeche entfaellt.
+- Der helle Offen-Statuspunkt oben rechts wurde entfernt. Er war ein absichtlich gezeichnetes Element; ob er die vom Nutzer gemeldete weisse Stelle vollstaendig erklaert, ist ohne Sichtpruefung nicht bestaetigt.
+- Badge und Panel verwenden dieselben Makro-Farbvariablen. Ringbreite auf 4 logische Pixel erhoeht; keine Bitmap, CSS-Skalierung oder Unschaerfefilter fuer die Badge-Grafik.
+- Bei null Fortschritt wird kein abgerundeter Restpunkt gezeichnet, bei vollem Fortschritt ein durchgehender Kreis.
+- TypeScript-/Vite-Produktionsbuild und alle 22 vorhandenen Tests bestanden. Keine Aenderung an Datenformat oder Tagebuch.
+- Sichtpruefung nicht abgeschlossen: Computer-Use konnte den Codex-App-Server nicht starten; Chrome erreichte den lokalen Vorschau-Server nicht, und die In-App-Browserroute war nicht verfuegbar. Daher keine bestaetigte Aussage zur nativen Darstellung oder verschiedenen DPI-Skalierungen.
+
+- Nativer Release-Build erfolgreich (3m02s); aktualisierte portable EXE unter output/release/Kalorie-Widget.exe. NSIS-Installer konnte nicht neu erstellt werden, weil der Download der NSIS-Buildwerkzeuge an DNS/Netzwerkzugriff scheiterte. Keine Installation oder erfolgreiche Live-Sichtpruefung behauptet.
+
+## Installation auf diesem PC - 23.10.2026
+
+- Aktueller Windows-Release und NSIS-Installer erfolgreich erstellt; alle 22 Frontend-Tests bestanden.
+- Installer unter output/release/Kalorie-Widget-Setup.exe bereitgelegt und im aktuellen Benutzerkonto ausgefuehrt (Exitcode 0). Vorhandene Installation 0.3.0 aktualisiert.
+- Tagebuch und Cloud-Abgleichsbasis vorher zusaetzlich unter %LOCALAPPDATA%/KalorieWidget-Backups/before-update-20261023-144748 gesichert.
+- Installierte EXE gestartet und mit Computer Use nativ geprueft: Kreis und Panel oeffnen, vorhandene Tagesdaten weiterhin 565 kcal mit sechs Eintraegen.
+- Installierte und portable EXE unterscheiden sich ausschliesslich in drei Bytes der Tauri-Bundle-Kennung (NSS gegen UNK), passend zu Installation gegen portablem Start.
+- Sichtpruefung bleibt eingeschraenkt: In der Kreisaufnahme bei geoeffnetem Panel erscheint weiterhin ein heller Bereich oben rechts. Bei der ersten Aufnahme mit geschlossenem Panel war er nicht vorhanden. Die Entfernung des alten Statuspunkts ist deshalb keine vollstaendige Bestaetigung der Fehlerbehebung; Ursache dieses verbleibenden Effekts noch offen.
+
+## Korrektur des nativen Kreisrands - 23.10.2026
+
+- Badge-Fenster und nativer WebView-Hintergrund verwenden deckendes Navy (#142238). Damit ist auch der Bereich zwischen SVG-Kante und nativer Fensterregion hinterlegt.
+- Die native Kreisregion entspricht exakt der Fensterbreite/-hoehe; der bisherige zusaetzliche Pixel an rechter und unterer Grenze entfaellt.
+- TypeScript-/Vite-Build und 22 Frontend-Tests erfolgreich. Nativer Release-Build und NSIS-Installer erfolgreich (3m01s).
+- Aktuelles Paket nach output/release/Kalorie-Widget-Setup.exe kopiert und installiert (Exitcode 0); installierte EXE gestartet. Vergleich mit dem Build unterscheidet nur die drei erwarteten Bytes der Tauri-Bundle-Kennung (NSS/UNK).
+- Computer-Use-Sichtpruefung der installierten Version: Kreis im geschlossenen Zustand und nach Oeffnen des Panels ohne sichtbaren hellen Bereich oben rechts. Panel weiterhin funktionsfaehig, heute 565 kcal und sechs Eintraege.
+- Alle 17 gespeicherten Tagebucheintraege nach der Installation mit der vorherigen Sicherung verglichen: unveraendert. Sicherung unter %LOCALAPPDATA%/KalorieWidget-Backups/install-render-fix-20261023-150146.
+- Sichtpruefung auf diesem Arbeitsplatz bei aktueller Bildschirmskalierung; weitere Monitore/DPI-Stufen nicht erneut getestet.

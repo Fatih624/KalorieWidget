@@ -55,7 +55,7 @@ fn shape(window:&tauri::WebviewWindow) {
             // The native region encloses the CSS edge. It never clips its
             // antialiased border; it only removes empty, clickable corners.
             unsafe {
-                let r=if window.label()=="badge" {CreateEllipticRgn(0,0,size.width as i32+1,size.height as i32+1)}
+                let r=if window.label()=="badge" {CreateEllipticRgn(0,0,size.width as i32,size.height as i32)}
                 else {CreateRoundRectRgn(0,0,size.width as i32+1,size.height as i32+1,(40.0*scale).round() as i32,(40.0*scale).round() as i32)};
                 if !r.is_null()&&SetWindowRgn(hwnd.0,r,1)==0 {DeleteObject(r);}
             }

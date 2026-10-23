@@ -20,16 +20,16 @@ export function MacroBadge({ value, onToggle, standalone = false }: { value: Bad
     onPointerMove={e=>{if(!start.current || !(e.buttons&1))return;if(Math.abs(e.clientX-start.current.x)+Math.abs(e.clientY-start.current.y)>6){start.current=null;dragged.current=true;if(standalone)void dragWindow().catch(()=>{});}}}
     onPointerUp={()=>{start.current=null;}} onPointerCancel={()=>{start.current=null;dragged.current=true;}}
     onClick={()=>{if(!dragged.current)onToggle();dragged.current=false;}}>
-    <svg className="badge-rings" viewBox="0 0 128 128" aria-hidden="true">
+    <svg className="badge-rings" viewBox="0 0 128 128" shapeRendering="geometricPrecision" aria-hidden="true">
+      <circle className="badge-surface" cx="64" cy="64" r="63"/>
       {keys.map((key,i)=>{const radius=59-i*5.5,progress=Math.max(0,Math.min(1,value.total[key]/value.goals[key]));return <g key={key} className={`badge-${key}`}>
         <circle className="badge-track" cx="64" cy="64" r={radius}/>
-        <circle className="badge-value" cx="64" cy="64" r={radius} pathLength="100" strokeDasharray={`${progress*100} 100`} transform="rotate(-90 64 64)"/>
+        {progress > 0 && <circle className="badge-value" cx="64" cy="64" r={radius} pathLength="100" strokeDasharray={progress < 1 ? `${progress*100} 100` : undefined} transform="rotate(-90 64 64)"/>}
       </g>;})}
     </svg>
     <span className="badge-calories"><strong>{number(value.total.kcal)}</strong><span>kcal</span></span>
     <span className="badge-today">HEUTE</span>
     <span className="badge-macros" aria-hidden={!details}>{keys.map(key=><span className={`badge-${key}`} key={key}><b>{labels[key]}<small> g</small></b><span>{compactGrams(value.total[key])}</span></span>)}</span>
-    <span className="badge-open-indicator" aria-hidden="true"/>
   </button>;
 }
 

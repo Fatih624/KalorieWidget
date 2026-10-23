@@ -540,19 +540,19 @@ export default function App() {
                     key: "protein",
                     label: "Protein",
                     icon: Dumbbell,
-                    color: "#f6a0cc",
+                    color: "var(--macro-protein)",
                   },
                   {
                     key: "carbs",
                     label: "Kohlenhydrate",
                     icon: Wheat,
-                    color: "#86ebc3",
+                    color: "var(--macro-carbs)",
                   },
                   {
                     key: "fat",
                     label: "Fett",
                     icon: Droplet,
-                    color: "#f4d180",
+                    color: "var(--macro-fat)",
                   },
                 ] as const
               ).map(({ key, label, icon: Icon, color }) => (

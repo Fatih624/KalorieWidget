@@ -39,7 +39,7 @@
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "center": true,
-        "backgroundColor": "#00000000"
+        "backgroundColor": "#142238"
       }
     ],
     "security": {

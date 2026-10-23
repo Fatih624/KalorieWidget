@@ -1690,8 +1690,6 @@ body.badge-window { min-width:128px;min-height:128px;overflow:hidden;background:
 .show-details .badge-today { opacity:0; }
 .show-details .badge-macros { opacity:1; }
 .show-details .badge-calories { top:29px; }
-.badge-open-indicator { position:absolute;top:18px;right:26px;width:4px;height:4px;border-radius:50%;background:transparent; }
-.panel-open .badge-open-indicator { background:#e3fffa;box-shadow:0 0 0 2px #94f4e622; }
 .badge-loading { font-size:13px; }
 .badge-error { position:absolute;bottom:7px;right:15px;width:20px;height:20px;border-radius:50%;background:#f4c681;color:#27354e;font-weight:700; }
 .badge-quit { position:absolute;right:0;top:0;width:20px;height:20px;border-radius:50%;font-size:17px;background:#263f66;color:#e4edfc;opacity:0;transition:opacity 120ms; }
@@ -1713,7 +1711,7 @@ body.badge-window { min-width:128px;min-height:128px;overflow:hidden;background:
 .glass { background:linear-gradient(140deg,#b1d1ff25,#648bd812 46%,#c9baff20),rgba(27,52,102,var(--glass-alpha,.8)); }
 
 /* Solid desktop theme. Rounded-window alpha is only used outside the surface. */
-:root { color:#f4f7fc;--muted:#b9c7dc;--accent:#6ce7df;--line:#304059; }
+:root { color:#f4f7fc;--muted:#b9c7dc;--accent:#6ce7df;--line:#304059;--macro-protein:#f6a0cc;--macro-carbs:#86ebc3;--macro-fat:#f4d180; }
 body:not(.native) { background:#0b1423; }
 body:not(.native)::before { display:none; }
 .surface { background:#142238;border:1px solid #344760;box-shadow:none;backdrop-filter:none; }
@@ -1797,14 +1795,22 @@ body:not(.native)::before { display:none; }
 .notice { background:#253b55;border-color:#4a6585;color:#d8e6f8; }
 .toast { background:#203b4c;border:1px solid #74b9ae;color:#fff;box-shadow:none; }
 .badge-shell { border-radius:50%;overflow:hidden; }
-.macro-badge::before { inset:1px;background:#17283e;border:1px solid #6283a7;box-shadow:none; }
-.macro-badge:hover::before,.macro-badge:focus-visible::before { background:#203750;border-color:#b2f0e7; }
-.macro-badge:focus-visible::before { border-width:2px; }
+/* The native ellipse clips the corners. Fill its complete interior so the
+   WebView compositor cannot expose the desktop between it and the SVG edge. */
+body.badge-window.native { background:#142238; }
+/* Surface and rings share one opaque vector layer at the current display DPI. */
+.macro-badge::before { content:none; }
+.badge-rings { display:block; }
+.badge-rings .badge-surface { fill:#142238;stroke:#344760;stroke-width:1; }
+.macro-badge:hover .badge-surface,.macro-badge:focus-visible .badge-surface { stroke:var(--macro-carbs); }
+.macro-badge:focus-visible .badge-surface { stroke-width:2; }
+.badge-rings .badge-track,.badge-rings .badge-value { stroke-width:4; }
+.badge-loading { border-radius:50%;background:#142238;border:1px solid #344760; }
 .badge-track { stroke:#374b65; }
 .badge-value { stroke:currentColor; }
-.badge-protein { color:#ff9fc8; }
-.badge-carbs { color:#7ee8c3; }
-.badge-fat { color:#f5cf7f; }
+.badge-protein { color:var(--macro-protein); }
+.badge-carbs { color:var(--macro-carbs); }
+.badge-fat { color:var(--macro-fat); }
 .badge-calories { top:30px; }
 .badge-calories strong { font-size:27px;font-weight:650;letter-spacing:-.7px; }
 .badge-calories>span { color:#e1edfa;font-size:12px; }
@@ -1812,7 +1818,5 @@ body:not(.native)::before { display:none; }
 .badge-macros { top:79px;left:20px;right:20px;background:#203750;border-radius:6px;padding:1px 0; }
 .badge-macros b small { color:#dbe9fa; }
 .show-details .badge-calories { top:30px; }
-.badge-open-indicator { top:18px;right:26px; }
-.panel-open .badge-open-indicator { background:#c0fff0;box-shadow:none; }
 .badge-error { bottom:11px;right:7px; }
 @media(prefers-reduced-motion:reduce) { .favorite-card:hover { transform:none; } }
