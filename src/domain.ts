@@ -1,3 +1,5 @@
+import { findLocal as findSharedFoods } from '../sites/kalorie-coach/lib/local-food-search';
+
 export type Macros = {
   kcal: number;
   protein: number;
@@ -234,21 +236,5 @@ export function week(entries: Entry[], now = new Date()) {
   });
 }
 export function findLocal(query: string, favorites: Food[]): Food[] {
-  const amount = query.match(/(?:^|\s)(\d+(?:[.,]\d+)?)\s*(kg|g|gramm)\b/i);
-  const text = query
-    .replace(/(?:^|\s)\d+(?:[.,]\d+)?\s*(kg|g|gramm)\b/i, "")
-    .trim()
-    .toLocaleLowerCase("de");
-  if (!text) return favorites;
-  return favorites
-    .filter((f) => f.name.toLocaleLowerCase("de").includes(text))
-    .map((f) =>
-      amount
-        ? portion(
-            f,
-            Number(amount[1].replace(",", ".")) *
-              (amount[2].toLowerCase() === "kg" ? 1000 : 1),
-          )
-        : f,
-    );
+  return findSharedFoods(query, favorites);
 }

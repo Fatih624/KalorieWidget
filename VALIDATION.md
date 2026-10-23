@@ -1,5 +1,13 @@
 # Prüfung der Windows-Version und privaten Site
 
+## Lebensmittelkatalog vom 23.10.2026
+
+- Ein gemeinsamer, statischer Katalog mit 67 CoFID-Grundnahrungsmitteln und 10 Lidl-Produkten aus vollständigen Open-Food-Facts-Barcode-Datensätzen wird in beiden Schnellsuchen verwendet. Eigene Favoriten und jüngste Tagebucheinträge haben Vorrang; gleiche Namen oder IDs erscheinen nur einmal. Keine automatische Änderung persönlicher Favoriten oder Tagebucheinträge.
+- Quellen und konkrete Datensätze unter `docs/PRESETS-SOURCES.md` dokumentiert; roh/trocken und gekocht getrennt. Der Windows-Suchparser nutzt nun dieselbe Mengen- und Stücklogik wie die Handy-App.
+- 22 TypeScript-Tests erfolgreich, einschließlich Katalogvalidierung, ID-Eindeutigkeit, Priorität persönlicher Portionen, Roh-/Garunterscheidung und identischer Suche in beiden Apps. `2 Eier`, Grammangaben und Lidl-Suche geprüft. Frontend-Build, Handy-TypeScript-Prüfung, bisherige lokale API-/Historienprüfungen und Handy-Produktionsbuild erfolgreich.
+- Auf Wunsch des Nutzers keine weitere Browser- oder Computer-Use-Prüfung durchgeführt.
+- Windows-Release erfolgreich erstellt und Installer beendet mit Exitcode 0. Handy-Version 9 erfolgreich unter der bestehenden Adresse veröffentlicht; Datenbank und Laufzeitgeheimnisse unverändert.
+
 ## Ergänzungen vom 23.10.2026: KI-Angaben und Schnellsuche
 
 - Optionale Gesamtanzahl und Zusatzkommentar bei Windows-KI sowie Foto-/Textanalyse der Handy-App ergänzt. Backend-Grenzen vor einer Anbieteranfrage geprüft; Cache unterscheidet Anzahl und Kommentar. Änderungen an Eingaben verwerfen vorherige Vorschläge.

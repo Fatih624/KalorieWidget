@@ -435,7 +435,7 @@ export function FoodSearch({
               ? "z. B. 250 g Skyr mit einer Banane"
               : tab === "online"
                 ? "Produktname oder Barcode"
-                : "z. B. 300 g Skyr"
+                : "z. B. 2 Eier, Reis gekocht oder Lidl"
           }
         />
         <button
@@ -535,7 +535,7 @@ export function FoodSearch({
         {!foods.length && !busy && (tab === "local" || searched) && (
           <div className="empty small">
             {tab === "local"
-              ? "Kein passendes Lebensmittel in Favoriten oder Tagebuch. Suche online oder lege dein Essen selbst an."
+              ? "Kein passendes Lebensmittel in Favoriten, Tagebuch oder Vorlagen. Suche online oder lege dein Essen selbst an."
               : "Keine vollständigen Nährwerte gefunden. Du kannst sie selbst eintragen."}
           </div>
         )}

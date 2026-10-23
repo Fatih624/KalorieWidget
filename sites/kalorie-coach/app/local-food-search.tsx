@@ -10,6 +10,7 @@ export default function LocalFoodSearch({ favorites, onSelect, onAdd, onSaveTemp
 }) {
   const [query, setQuery] = useState(''), [open, setOpen] = useState(false), [active, setActive] = useState(0);
   const [review, setReview] = useState(false), [pinned, setPinned] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(6);
   const slot = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setPinned(entry.boundingClientRect.top < 8 && entry.intersectionRatio < 1),
@@ -19,8 +20,9 @@ export default function LocalFoodSearch({ favorites, onSelect, onAdd, onSaveTemp
   }, []);
   const parts = splitMealQuery(query, favorites);
   let matches: Food[] = [];
+  let matchCount = 0;
   let error = '';
-  try { matches = parts.length > 1 ? [] : findLocal(query, favorites).slice(0, 6); }
+  try { const all = parts.length > 1 ? [] : findLocal(query, favorites); matchCount = all.length; matches = all.slice(0, visibleCount); }
   catch (e) { error = e instanceof Error ? e.message : 'Bitte die Menge prüfen.'; }
   function choose(food: Food) { setOpen(false); onSelect(food); }
   function submit() {
@@ -33,11 +35,11 @@ export default function LocalFoodSearch({ favorites, onSelect, onAdd, onSaveTemp
     }}>
       <form onSubmit={e => { e.preventDefault(); submit(); }}>
         <Search size={18} aria-hidden="true"/>
-        <input aria-label="Schnellsuche in Favoriten und bisherigen Einträgen" role="combobox" aria-autocomplete="list"
+        <input aria-label="Schnellsuche in Favoriten, bisherigen Einträgen und Lebensmittelvorlagen" role="combobox" aria-autocomplete="list"
           aria-expanded={open} aria-controls={open ? 'mobile-local-results' : undefined}
           aria-activedescendant={open && (parts.length > 1 || matches[active]) ? `mobile-local-option-${parts.length > 1 ? 0 : active}` : undefined}
-          placeholder="Schnellsuche, z. B. Burger" maxLength={1600} value={query}
-          onFocus={() => setOpen(true)} onChange={e => { setQuery(e.target.value); setOpen(true); setActive(0); }}
+          placeholder="z. B. 2 Eier, Reis gekocht oder Lidl" maxLength={1600} value={query}
+          onFocus={() => setOpen(true)} onChange={e => { setQuery(e.target.value); setOpen(true); setActive(0); setVisibleCount(6); }}
           onKeyDown={e => {
             if (e.key === 'Escape') { e.preventDefault(); setOpen(false); }
             else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && matches.length) {
@@ -48,16 +50,18 @@ export default function LocalFoodSearch({ favorites, onSelect, onAdd, onSaveTemp
           }}/>
         <button className="icon" type="submit" aria-label="Vorlage auswählen" disabled={parts.length < 2 && !matches.length}><Plus size={20}/></button>
       </form>
-      {open && <div className="mobile-local-results" id="mobile-local-results" role="listbox" aria-label="Favoriten und bisherige Lebensmittel">
+      {open && <div className="mobile-local-results" id="mobile-local-results" role="listbox" aria-label="Favoriten, bisherige Lebensmittel und fertige Vorlagen">
         {parts.length > 1 ? <button type="button" role="option" aria-selected="true" id="mobile-local-option-0"
           onMouseDown={e => e.preventDefault()} onClick={submit}><strong>{parts.length} Lebensmittel gemeinsam prüfen</strong><small>Mengen und Gesamtnährwerte ansehen</small></button>
           : matches.map((food, index) => <button type="button" role="option" key={`${food.id}-${index}`}
             id={`mobile-local-option-${index}`} aria-selected={index === active} onMouseDown={e => e.preventDefault()}
             onMouseEnter={() => setActive(index)} onClick={() => choose(food)}>
             <strong>{food.name}</strong><small>{fmt(food.grams)} g · {fmt(food.macros.kcal)} kcal</small>
+            <small>{food.source}</small>
           </button>)}
         {parts.length < 2 && !matches.length && <p>{error || 'Noch kein passender Eintrag. Bitte die Beschreibung prüfen oder „Erfassen“ verwenden.'}</p>}
       </div>}
+      {open && matchCount > visibleCount && <button type="button" className="text-link" onMouseDown={e=>e.preventDefault()} onClick={()=>setVisibleCount(n=>n+12)}>Weitere Treffer anzeigen ({matchCount - visibleCount})</button>}
     </div>
   </div>
   {review && <LocalMealReview query={query} favorites={favorites} onClose={() => setReview(false)}

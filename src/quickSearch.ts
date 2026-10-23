@@ -1,16 +1,8 @@
-import type { Entry, Food } from "./domain";
+import type { Food, Entry } from './domain';
+import { searchableFoods } from '../sites/kalorie-coach/lib/recent-foods';
+import { FOOD_PRESETS } from '../sites/kalorie-coach/lib/food-presets';
 
-/** Favorites take precedence; otherwise reuse the most recently eaten portion. */
+// Both apps use the same catalog, history ordering and personal overrides.
 export function quickSearchFoods(favorites: Food[], entries: Entry[]): Food[] {
-  const recent = entries.map((food, index) => ({ food, index })).sort((a, b) =>
-    b.food.date.localeCompare(a.food.date) ||
-    b.food.time.localeCompare(a.food.time) || b.index - a.index,
-  );
-  const seen = new Set<string>();
-  return [...favorites, ...recent.map(({ food }) => food)].filter((food) => {
-    const name = food.name.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase("de");
-    if (seen.has(name)) return false;
-    seen.add(name);
-    return true;
-  });
+  return searchableFoods(favorites, entries, FOOD_PRESETS);
 }

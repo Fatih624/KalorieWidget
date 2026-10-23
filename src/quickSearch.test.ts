@@ -17,7 +17,8 @@ describe("Schnellsuche aus Favoriten und Tagebuch", () => {
   it("dedupliziert normalisierte Namen und bevorzugt Favoriten", () => {
     const favorite = { ...defaults().favorites[0], name: "Skyr natur" };
     const historical = makeEntry({ ...portion(favorite, 500), name: "  SKYR   NATUR  " });
-    expect(quickSearchFoods([favorite], [historical])).toEqual([favorite]);
+    expect(quickSearchFoods([favorite], [historical])[0]).toEqual(favorite);
+    expect(quickSearchFoods([favorite], [historical]).filter(f=>f.name.trim().toLowerCase()==='skyr natur')).toHaveLength(1);
   });
 
   it("wählt jüngstes Datum, Uhrzeit und zuletzt erfassten Eintrag bei Gleichstand", () => {

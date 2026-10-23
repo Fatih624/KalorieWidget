@@ -31,6 +31,10 @@ Bei „Mit KI“ können zusätzlich eine **Anzahl insgesamt** und ein **Zusatzk
 
 Die **Schnellsuche** berücksichtigt Favoriten und bereits erfasste Lebensmittel aus allen Tagen, unabhängig von der Erfassungsmethode. Gleiche Namen erscheinen nur einmal. Favoriten behalten ihre gespeicherte Portion; für andere Lebensmittel wird die zuletzt erfasste Portion verwendet.
 
+Zusätzlich enthält die Schnellsuche in beiden Apps **67 Grundnahrungsmittel und 10 konkrete Lidl-Produkte**. Beispiele: `2 Eier`, `200 g Reis gekocht`, `150 g Nudeln trocken`, `Hähnchen`, `Brokkoli`, `Lidl Skyr` oder `Lidl Haferflocken`. Roh-/Garzustände sind getrennt bezeichnet. Vorlagen funktionieren offline und ohne KI; sie werden erst nach Auswahl und Bestätigung ins Tagebuch übernommen. Persönliche Angaben haben Vorrang. Die Handy-Suche bietet bei größeren Trefferlisten „Weitere Treffer anzeigen“.
+
+Grundnahrungsmittel sind Richtwerte aus CoFID 2021; Lidl-Vorlagen sind Barcode-Datensätze von Open Food Facts mit Stand 23.10.2026. Standardportion ist meist 100 g, bei Eiern 60 g essbarer Inhalt je Stück. Auch Milch und Öl verwenden Gramm, keine automatische ml-Umrechnung. Bei Markenprodukten die aktuelle Packung prüfen. [Quellen, Datensätze und Lizenzen](docs/PRESETS-SOURCES.md).
+
 Unter **Einstellungen → KI & Sprache** einen Anbieter auswählen, eine unterstützte Modell-ID eintragen und den eigenen API-Schlüssel mit „Schlüssel speichern“ hinterlegen. Das Speichern des Schlüssels gilt sofort; Modell, Limits und Sprache werden mit „Einstellungen übernehmen“ gespeichert.
 
 Unterstützt werden OpenAI, Groq und OpenRouter über Chat Completions mit JSON-Modus. Die Modell-ID ist frei editierbar. Voreinstellungen: `gpt-4.1-mini`, `llama-3.3-70b-versatile`, `openai/gpt-4.1-mini`. Zugang, Verfügbarkeit und Abrechnung hängen vom jeweiligen Anbieter ab; diese Auswahl ist keine Garantie für das aktuell günstigste Modell.
